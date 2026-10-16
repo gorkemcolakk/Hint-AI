@@ -1,0 +1,12 @@
+# Satır sonu normalizasyonu (Windows / Linux / macOS uyumu)
+* text=auto
+
+# Bu dosya türlerinde LF zorunlu
+*.py  text eol=lf
+*.sh  text eol=lf
+*.md  text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+Makefile text eol=lf
+Dockerfile text eol=lf
