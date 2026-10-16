@@ -1,0 +1,52 @@
+services:
+  api:
+    build:
+      context: ./apps/api
+    ports:
+      - "8000:8000"
+    environment:
+      HINT_ENVIRONMENT: local
+      HINT_DATABASE_URL: postgresql://hint:hint@db:5432/hint
+      HINT_ASYNC_DATABASE_URL: postgresql+asyncpg://hint:hint@db:5432/hint
+      HINT_REDIS_URL: redis://redis:6379/0
+      HINT_JWT_SECRET: dev-secret-change-me-0123456789abcdef
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hint
+      POSTGRES_PASSWORD: hint
+      POSTGRES_DB: hint
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hint -d hint"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db_data:
