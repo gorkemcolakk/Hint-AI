@@ -1,0 +1,3 @@
+# Sadece bu kişi code owner; branch korumasında "Require review from Code Owners"
+# açık olduğu için PR onayı yalnızca @gorkemcolakk'tan gelir.
+* @gorkemcolakk
