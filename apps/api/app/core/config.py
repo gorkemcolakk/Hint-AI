@@ -41,9 +41,7 @@ class Settings(BaseSettings):
     )
     llm_max_retries: int = Field(
         default=1,
-        validation_alias=AliasChoices(
-            "LLM_MAX_RETRIES", "HINT_LLM_MAX_RETRIES", "llm_max_retries"
-        ),
+        validation_alias=AliasChoices("LLM_MAX_RETRIES", "HINT_LLM_MAX_RETRIES", "llm_max_retries"),
     )
     llm_daily_call_limit_per_child: int = Field(
         default=50,

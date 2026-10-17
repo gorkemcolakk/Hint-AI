@@ -19,3 +19,4 @@
    - Her milestone için önce 10 satırı geçmeyen plan sun ve kullanıcı onayı bekle.
    - Bitince: 5 satır özet, test sonucu, DECISIONS.md / ASSUMPTIONS.md güncellemeleri, commit mesajı öner.
    - Her milestone bittiğinde README.md'deki Durum tablosunu güncelle ve aynı commit'e dahil et.
+   - Commit öncesi ruff check, ruff format --check, mypy ve pytest hepsi çalıştırılmalı (CI hepsini kontrol ediyor).

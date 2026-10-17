@@ -105,6 +105,7 @@ async def test_cost_calculation() -> None:
 @pytest.mark.asyncio
 async def test_retry_on_timeout_and_server_errors() -> None:
     """Timeout veya 5xx hatasında en fazla max_retries kadar yeniden dener."""
+
     # İlk çağrıda hata veren, ikinci çağrıda başarı dönen bir sağlayıcı
     class FlakyProvider(MockLLMProvider):
         def __init__(self) -> None:
@@ -212,10 +213,12 @@ async def test_db_persistence_llm_calls_privacy(db_session: AsyncSession) -> Non
 @pytest.mark.asyncio
 async def test_http_llm_provider_success() -> None:
     """HttpLLMProvider OpenAI formatındaki yanıtı düzgün ayrıştırır."""
+
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url.path == "/v1beta/openai/chat/completions"
         assert request.headers.get("Authorization") == "Bearer test-key"
         import json
+
         body = json.loads(request.content)
         assert body["model"] == "gemini-2.5-flash"
         assert body["messages"][0]["role"] == "user"
@@ -412,4 +415,3 @@ async def test_pii_eval_runner_zero_leaks() -> None:
     assert report["leak_rate_percent"] == 0.0
     assert report["passed"] is True
     assert report["total_cases"] >= 4
-

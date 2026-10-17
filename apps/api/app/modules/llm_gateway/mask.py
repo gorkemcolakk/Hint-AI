@@ -65,9 +65,7 @@ def is_valid_tr_iban(val: str) -> bool:
 
 
 # Regex Kalıpları
-_EMAIL_REGEX = re.compile(
-    r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"
-)
+_EMAIL_REGEX = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
 
 # +90, 0090, 0 veya doğrudan 5xx formatları (boşluklu, tireli veya bitişik)
 _PHONE_REGEX = re.compile(
@@ -84,14 +82,14 @@ _IBAN_CANDIDATE_REGEX = re.compile(r"(?i)\bTR[\s\d]{24,32}\b")
 _NAME_ADIM_REGEX = re.compile(
     r"(?i)\b(?:benim\s+)?(?:adım|ismim)\s+([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:\s+[A-ZÇĞİÖŞÜa-zçğıöşü]+)?)"
 )
-_NAME_BANA_REGEX = re.compile(
-    r"(?i)\bbana\s+([A-ZÇĞİÖŞÜa-zçğıöşü]+)\s+derler\b"
-)
+_NAME_BANA_REGEX = re.compile(r"(?i)\bbana\s+([A-ZÇĞİÖŞÜa-zçğıöşü]+)\s+derler\b")
 
 # Sezgisel Okul Kalıpları (1-3 kelime + okul türü; zamirler hariç)
 _SCHOOL_STOP_WORDS = r"(?:ben|biz|sen|benim|bizim|o|şu|bu)"
 _SCHOOL_REGEX = re.compile(
-    r"(?i)\b(?!" + _SCHOOL_STOP_WORDS + r"\b)([A-ZÇĞİÖŞÜa-zçğıöşü0-9]+(?:\s+(?!"
+    r"(?i)\b(?!"
+    + _SCHOOL_STOP_WORDS
+    + r"\b)([A-ZÇĞİÖŞÜa-zçğıöşü0-9]+(?:\s+(?!"
     + _SCHOOL_STOP_WORDS
     + r"\b)[A-ZÇĞİÖŞÜa-zçğıöşü0-9]+){0,2}\s+"
     r"(?:İlkokulu|İlkokul|Ortaokulu|Ortaokul|Fen Lisesi|Anadolu Lisesi|Lisesi|Lise|Koleji|Kolej))\b"

@@ -100,9 +100,7 @@ class BaseLLMProvider(ABC):
             raise ValueError("Mesaj listesi boş olamaz.")
         for msg in messages:
             if not isinstance(msg.content, MaskedText):
-                raise TypeError(
-                    "Sağlayıcıya maskelenmemiş metin verilemez. MaskedText zorunludur."
-                )
+                raise TypeError("Sağlayıcıya maskelenmemiş metin verilemez. MaskedText zorunludur.")
 
 
 class MockLLMProvider(BaseLLMProvider):
@@ -184,9 +182,7 @@ class HttpLLMProvider(BaseLLMProvider):
 
         payload: dict[str, Any] = {
             "model": model,
-            "messages": [
-                {"role": m.role, "content": str(m.content)} for m in messages
-            ],
+            "messages": [{"role": m.role, "content": str(m.content)} for m in messages],
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
@@ -217,13 +213,9 @@ class HttpLLMProvider(BaseLLMProvider):
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
 
         if resp.status_code == 429:
-            raise LLMRateLimitError(
-                f"LLM hız sınırı aşıldı (429): {resp.text}"
-            )
+            raise LLMRateLimitError(f"LLM hız sınırı aşıldı (429): {resp.text}")
         if resp.status_code >= 500:
-            raise LLMServerError(
-                f"LLM sunucu hatası ({resp.status_code}): {resp.text}"
-            )
+            raise LLMServerError(f"LLM sunucu hatası ({resp.status_code}): {resp.text}")
         if 400 <= resp.status_code < 500:
             raise LLMClientError(
                 f"LLM istemci hatası ({resp.status_code}): {resp.text}",
@@ -237,9 +229,7 @@ class HttpLLMProvider(BaseLLMProvider):
             input_tokens = usage.get("prompt_tokens", 0)
             output_tokens = usage.get("completion_tokens", 0)
         except (KeyError, IndexError, TypeError) as exc:
-            raise LLMServerError(
-                f"LLM yanıt formatı geçersiz: {resp.text}"
-            ) from exc
+            raise LLMServerError(f"LLM yanıt formatı geçersiz: {resp.text}") from exc
 
         return LLMResponse(
             content=content,
