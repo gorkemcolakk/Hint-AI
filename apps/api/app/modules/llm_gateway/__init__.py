@@ -4,6 +4,8 @@ from app.modules.llm_gateway.mask import MaskedText, mask_pii
 from app.modules.llm_gateway.models import LLMCall
 from app.modules.llm_gateway.providers import (
     BaseLLMProvider,
+    ConsentRequiredError,
+    DailyLimitExceededError,
     HttpLLMProvider,
     LLMClientError,
     LLMError,
@@ -26,6 +28,8 @@ __all__ = [
     "LLMMessage",
     "LLMResponse",
     "LLMError",
+    "ConsentRequiredError",
+    "DailyLimitExceededError",
     "LLMTimeoutError",
     "LLMRateLimitError",
     "LLMServerError",

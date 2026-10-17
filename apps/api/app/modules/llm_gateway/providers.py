@@ -47,6 +47,18 @@ class LLMClientError(LLMError):
         self.status_code = status_code
 
 
+class ConsentRequiredError(LLMError):
+    """Çocuğun ai_processing rızası olmadığında fırlatılır."""
+
+    pass
+
+
+class DailyLimitExceededError(LLMError):
+    """Günlük çocuk başına LLM çağrı limiti aşıldığında fırlatılır."""
+
+    pass
+
+
 @dataclass(frozen=True)
 class LLMMessage:
     role: str

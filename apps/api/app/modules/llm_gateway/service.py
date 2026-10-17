@@ -12,15 +12,21 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
+from typing import cast
 
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.modules.auth_consent.models import Consent
 from app.modules.llm_gateway.mask import mask_pii
 from app.modules.llm_gateway.models import LLMCall
 from app.modules.llm_gateway.providers import (
     BaseLLMProvider,
+    ConsentRequiredError,
+    DailyLimitExceededError,
     HttpLLMProvider,
     LLMClientError,
     LLMError,
@@ -132,6 +138,31 @@ class LLMGatewayService:
 
         response: LLMResponse | None = None
 
+        # RIZA VE LİMİT KONTROLÜ (Çocuk verisi ve harcama koruması)
+        if child_id is not None and db is not None:
+            has_consent = await self._check_consent(db, child_id)
+            if not has_consent:
+                logger.warning(
+                    "LLM çağrısı engellendi: child_id=%s için ai_processing rızası bulunamadı",
+                    child_id,
+                )
+                raise ConsentRequiredError(
+                    f"Çocuk ({child_id}) için ai_processing rızası bulunmamaktadır."
+                )
+
+            daily_limit = settings.llm_daily_call_limit_per_child
+            daily_count = await self._count_daily_calls(db, child_id)
+            if daily_count >= daily_limit:
+                logger.warning(
+                    "LLM çağrısı engellendi: child_id=%s günlük çağrı limitini (%d/%d) aştı",
+                    child_id,
+                    daily_count,
+                    daily_limit,
+                )
+                raise DailyLimitExceededError(
+                    f"Çocuk ({child_id}) için günlük LLM çağrı limiti ({daily_limit}) aşıldı."
+                )
+
         # 2. ÇAĞRI VE RETRY DÖNGÜSÜ
         for attempt in range(max_retries + 1):
             try:
@@ -232,3 +263,24 @@ class LLMGatewayService:
             pii_detected_types=detected_types,
             call_id=call_id,
         )
+
+    async def _check_consent(self, db: AsyncSession, child_id: uuid.UUID) -> bool:
+        """Çocuğun aktif ai_processing veya llm_processing rızasını kontrol eder."""
+        stmt = select(Consent).where(
+            Consent.child_id == child_id,
+            Consent.purpose.in_(("ai_processing", "llm_processing")),
+            Consent.granted.is_(True),
+            Consent.revoked_at.is_(None),
+        )
+        row = await db.scalar(stmt)
+        return row is not None
+
+    async def _count_daily_calls(self, db: AsyncSession, child_id: uuid.UUID) -> int:
+        """Çocuğun bugünkü toplam LLM çağrı sayısını döner."""
+        today_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+        stmt = select(func.count(LLMCall.id)).where(
+            LLMCall.child_id == child_id,
+            LLMCall.created_at >= today_start,
+        )
+        count = cast(int | None, await db.scalar(stmt))
+        return count or 0

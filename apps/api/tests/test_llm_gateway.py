@@ -11,10 +11,13 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.auth_consent.models import ChildProfile, User
+from app.core.config import settings
+from app.modules.auth_consent.models import ChildProfile, Consent, User
 from app.modules.llm_gateway.mask import MaskedText
 from app.modules.llm_gateway.models import LLMCall
 from app.modules.llm_gateway.providers import (
+    ConsentRequiredError,
+    DailyLimitExceededError,
     HttpLLMProvider,
     LLMClientError,
     LLMMessage,
@@ -24,6 +27,7 @@ from app.modules.llm_gateway.providers import (
     MockLLMProvider,
 )
 from app.modules.llm_gateway.service import LLMGatewayService
+from evals.run_pii_eval import run_pii_eval
 
 
 def test_provider_rejects_unmasked_content() -> None:
@@ -158,6 +162,17 @@ async def test_db_persistence_llm_calls_privacy(db_session: AsyncSession) -> Non
     db_session.add(child)
     await db_session.flush()
 
+    db_session.add(
+        Consent(
+            child_id=child.id,
+            guardian_id=guardian.id,
+            purpose="llm_processing",
+            policy_version="v0-draft",
+            granted=True,
+        )
+    )
+    await db_session.flush()
+
     mock = MockLLMProvider(input_tokens=120, output_tokens=80)
     service = LLMGatewayService(provider=mock)
 
@@ -252,3 +267,149 @@ async def test_http_llm_provider_error_mapping() -> None:
         with pytest.raises(LLMClientError) as exc_info:
             await p_400.generate([LLMMessage(role="user", content=MaskedText("a"))], model="m")
         assert exc_info.value.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_provider_not_called_when_ai_consent_missing(db_session: AsyncSession) -> None:
+    """Çocuğun ai_processing rızası yoksa sağlayıcı çağrılmaz ve hata fırlatılır."""
+    guardian = User(email="veli_noconsent@example.com", role="guardian")
+    db_session.add(guardian)
+    await db_session.flush()
+
+    child = ChildProfile(
+        guardian_id=guardian.id,
+        nickname="Elif",
+        birth_year=2016,
+        grade=3,
+        age_band="7-10",
+    )
+    db_session.add(child)
+    await db_session.flush()
+
+    # Yalnızca service rızası var (ai_processing / llm_processing YOK)
+    db_session.add(
+        Consent(
+            child_id=child.id,
+            guardian_id=guardian.id,
+            purpose="service",
+            policy_version="v0-draft",
+            granted=True,
+        )
+    )
+    await db_session.commit()
+
+    mock = MockLLMProvider()
+    service = LLMGatewayService(provider=mock)
+
+    with pytest.raises(ConsentRequiredError, match="ai_processing"):
+        await service.complete(
+            prompt="7 ile 8'i çarpar mısın?",
+            purpose="hint",
+            child_id=child.id,
+            db=db_session,
+        )
+
+    # Sağlayıcı çağrılmamış olmalı!
+    assert mock.call_count == 0
+
+
+@pytest.mark.asyncio
+async def test_provider_called_when_ai_consent_granted(db_session: AsyncSession) -> None:
+    """Çocuğun aktif ai_processing / llm_processing rızası varsa sağlayıcı çağrılır."""
+    guardian = User(email="veli_withconsent@example.com", role="guardian")
+    db_session.add(guardian)
+    await db_session.flush()
+
+    child = ChildProfile(
+        guardian_id=guardian.id,
+        nickname="Mert",
+        birth_year=2015,
+        grade=4,
+        age_band="7-10",
+    )
+    db_session.add(child)
+    await db_session.flush()
+
+    db_session.add(
+        Consent(
+            child_id=child.id,
+            guardian_id=guardian.id,
+            purpose="llm_processing",
+            policy_version="v0-draft",
+            granted=True,
+        )
+    )
+    await db_session.commit()
+
+    mock = MockLLMProvider(canned_response="Aferin, ipucu!")
+    service = LLMGatewayService(provider=mock)
+
+    result = await service.complete(
+        prompt="Soru",
+        purpose="hint",
+        child_id=child.id,
+        db=db_session,
+    )
+
+    assert mock.call_count == 1
+    assert result.content == "Aferin, ipucu!"
+
+
+@pytest.mark.asyncio
+async def test_provider_not_called_when_daily_limit_exceeded(
+    db_session: AsyncSession, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Günlük limit aşıldığında sağlayıcı ASLA çağrılmaz ve DailyLimitExceededError fırlatılır."""
+    monkeypatch.setattr(settings, "llm_daily_call_limit_per_child", 2)
+
+    guardian = User(email="veli_limit@example.com", role="guardian")
+    db_session.add(guardian)
+    await db_session.flush()
+
+    child = ChildProfile(
+        guardian_id=guardian.id,
+        nickname="Bora",
+        birth_year=2014,
+        grade=5,
+        age_band="11-13",
+    )
+    db_session.add(child)
+    await db_session.flush()
+
+    db_session.add(
+        Consent(
+            child_id=child.id,
+            guardian_id=guardian.id,
+            purpose="llm_processing",
+            policy_version="v0-draft",
+            granted=True,
+        )
+    )
+    await db_session.commit()
+
+    mock = MockLLMProvider()
+    service = LLMGatewayService(provider=mock)
+
+    # 1. Çağrı (Başarılı)
+    await service.complete("Soru 1", purpose="hint", child_id=child.id, db=db_session)
+    # 2. Çağrı (Başarılı, limite ulaşıldı)
+    await service.complete("Soru 2", purpose="hint", child_id=child.id, db=db_session)
+    assert mock.call_count == 2
+
+    # 3. Çağrı (Limit aşıldı, sağlayıcı çağrılmamalı)
+    with pytest.raises(DailyLimitExceededError, match="günlük LLM çağrı limiti"):
+        await service.complete("Soru 3", purpose="hint", child_id=child.id, db=db_session)
+
+    # Provider çağrı sayısı hâlâ 2 olmalı!
+    assert mock.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_pii_eval_runner_zero_leaks() -> None:
+    """Eval çalıştırıcısı sahte veri setini test eder ve sızan PII sayısının 0 olduğunu doğrular."""
+    report = await run_pii_eval()
+    assert report["leaked_pii_count"] == 0
+    assert report["leak_rate_percent"] == 0.0
+    assert report["passed"] is True
+    assert report["total_cases"] >= 4
+

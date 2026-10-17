@@ -45,6 +45,14 @@ class Settings(BaseSettings):
             "LLM_MAX_RETRIES", "HINT_LLM_MAX_RETRIES", "llm_max_retries"
         ),
     )
+    llm_daily_call_limit_per_child: int = Field(
+        default=50,
+        validation_alias=AliasChoices(
+            "LLM_DAILY_CALL_LIMIT_PER_CHILD",
+            "HINT_LLM_DAILY_CALL_LIMIT_PER_CHILD",
+            "llm_daily_call_limit_per_child",
+        ),
+    )
     llm_pricing: dict[str, dict[str, float]] = Field(
         default_factory=lambda: {
             "gemini-2.5-flash": {"input_per_million": 0.075, "output_per_million": 0.30},

@@ -1,0 +1,4 @@
+{"id": 1, "input": "Benim adım Zeynep Demir, telefonum 0532 987 65 43. 15 ile 20'nin EBOB'u kaçtır?", "raw_pii": ["Zeynep Demir", "0532 987 65 43"], "expected_types": ["ISIM", "TELEFON"]}
+{"id": 2, "input": "Kadıköy Anadolu Lisesi öğrencisiyim. T.C. kimliğim 10000000146. Bu geometri sorusunu çözemedim.", "raw_pii": ["Kadıköy Anadolu Lisesi", "10000000146"], "expected_types": ["OKUL", "TCKN"]}
+{"id": 3, "input": "Bana velimden veli.veli@ornek.com adresine ya da IBAN: TR42 0006 1000 0000 0012 3456 78 ile ödeme yap dedi.", "raw_pii": ["veli.veli@ornek.com", "TR42 0006 1000 0000 0012 3456 78"], "expected_types": ["E-POSTA", "IBAN"]}
+{"id": 4, "input": "Adım Mehmet Can. Bana Memo derler. 45 / 5 kaç eder?", "raw_pii": ["Mehmet Can", "Memo"], "expected_types": ["ISIM"]}
