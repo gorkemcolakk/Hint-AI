@@ -7,11 +7,12 @@ import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+import app.modules.llm_gateway.models  # noqa: F401
 from app.modules.auth_consent.models import Base
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 
-_TABLES = ("pairing_codes", "consents", "refresh_tokens", "child_profiles", "users")
+_TABLES = ("llm_calls", "pairing_codes", "consents", "refresh_tokens", "child_profiles", "users")
 
 
 @pytest_asyncio.fixture
