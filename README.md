@@ -8,58 +8,82 @@
 
 Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, adım adım ipucu vererek kendi başına çözmesini sağlar. Ebeveyn paneli ve öğretmen paneliyle birlikte gelir.
 
-## Yol haritası
+## Durum
 
-| Milestone | İçerik | Durum |
+| Milestone | Tanım | Durum |
 |---|---|---|
-| **M0** | Altyapı iskeleti — monorepo, Docker Compose, CI, lint, `healthz` | ✅ |
-| **M1** | Kimlik, rıza, çocuk profili — auth, ebeveyn kaydı, eşleştirme | ✅ |
-| M2–M8 | LLM Gateway, ipucu merdiveni, istemci, paneller, yayın | ⏳ |
+| **M0** | Altyapı iskeleti (FastAPI, Docker Compose, CI, lint, `healthz`) | ✅ tamam |
+| **M1** | Kimlik, rıza ve çocuk profili (Auth, ebeveyn kaydı, eşleştirme) | ✅ tamam |
+| **M1.5** | Flutter istemci iskeleti (iOS + Android + Web, tek kod tabanı) | 🔜 sıradaki |
+| **M2** | LLM Gateway + PII maskeleme (Gemini/OpenAI uyumlu, rıza/kota, eval) | ✅ tamam |
+| **M3** | Gizli çözüm + SymPy doğrulama | 🔜 sıradaki |
+| **M4** | İpucu merdiveni (L0–L4) + sızıntı kontrolü | ⏳ bekliyor |
+| **M5** | Güvenlik katmanı ve moderasyon (kriz yönlendirmesi, injection) | ⏳ bekliyor |
+| **M6** | Flutter çocuk modu (öğrenme akışı, yaş temaları) | ⏳ bekliyor |
+| **M7** | Flutter ebeveyn modu (raporlar, kota, faturalama) | ⏳ bekliyor |
+| **M8** | Flutter öğretmen modu (sınıf paneli, ısı haritası) | ⏳ bekliyor |
+| **M9** | Eval otomasyonu, gözlemlenebilirlik ve yayın hazırlığı | ⏳ bekliyor |
 
-## Mevcut özellikler (M1)
+## Mevcut özellikler (M1 + M2)
 
 - **Ebeveyn/öğretmen kaydı** — parola `argon2` ile, JWT `access` + `refresh` (rotasyonlu, logout'ta iptal).
 - **Çocuk profili** — takma ad + doğum yılı + sınıf; e-posta/telefon **tutulmaz**.
-- **Amaç bazlı rıza** (`service`, `analytics`, `llm_processing`, `photo_processing`) — `service` rızası yoksa çocuk oturumu açılamaz.
-- **Cihaz eşleştirme** — tek kullanımlık kod (hash'li, 10 dk, 5 deneme limiti).
-- **Nesne düzeyi yetki** — ebeveyn yalnızca kendi çocuğunun verisini görür.
+- **Amaç bazlı rıza** (`service`, `analytics`, `llm_processing`, `photo_processing`) — `service` ve `ai_processing` rızası olmadan işlem yapılamaz.
+- **Cihaz eşleştirme** — tek kullanımlık kod (hash'li, 10 dk geçerlilik, 5 hatalı deneme sınırı).
+- **LLM Gateway & Sağlayıcı soyutlaması** — OpenAI uyumlu genel HTTP sağlayıcısı (Google Gemini) ve testler için `MockLLMProvider`.
+- **KVKK uyumlu PII maskeleme** — TCKN (checksum doğrulamalı), TR telefon, e-posta, TR IBAN ve sezgisel ad/okul kalıpları sağlayıcıya gitmeden maskelenir.
+- **Gizlilik ve maliyet izleme** — `llm_calls` tablosunda ve loglarda çocuk metni/prompt tutulmaz; token ve maliyet izlenir, çocuk başına günlük çağrı limiti uygulanır.
+- **Eval çalıştırıcısı** — `apps/api/evals` altında sentetik çocuk veri setiyle çalışan sıfır PII sızıntı doğrulayıcısı.
 
 ## Teknoloji
 
 | Katman | Yığın |
 |---|---|
 | Backend | FastAPI · Python 3.12 · SQLAlchemy 2 + Alembic · PostgreSQL · Redis |
-| İstemci | Flutter (iOS + Android + Web, tek proje) — yakında |
-| Kalite | pytest · ruff · mypy · GitHub Actions CI |
+| İstemci | Flutter (iOS + Android + Web, tek proje) — planlanıyor |
+| Kalite | pytest · ruff · mypy (strict) · GitHub Actions CI |
 
-## Hızlı başlangıç (Docker)
+## Nasıl çalıştırılır
+
+### 1. Docker Compose ile başlatma
 
 ```powershell
-docker compose up --build
+docker compose up -d --build
 ```
 
+Canlılık ve hazırlık sağlık kontrolleri:
 ```powershell
 curl http://localhost:8000/healthz   # {"status":"ok",...}
 curl http://localhost:8000/readyz    # db+redis hazırsa 200, değilse 503
 ```
 
-- API dokümanı (OpenAPI): <http://localhost:8000/docs>
+- OpenAPI / Swagger arayüzü: <http://localhost:8000/docs>
 
-## Yerel geliştirme (Docker'sız)
+### 2. Veritabanı migrasyonları (Alembic)
+
+```powershell
+docker compose exec api alembic upgrade head
+```
+
+### 3. Testleri çalıştırma
+
+Postgres Compose üzerinde `localhost:5432` portunda açıkken:
 
 ```powershell
 cd apps/api
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
+$env:TEST_DATABASE_URL = "postgresql+asyncpg://hint:hint@localhost:5432/hint"
 pytest
 ```
 
-DB entegrasyon testlerini de çalıştırmak için (Postgres `localhost:5432`'de olmalı):
-
+Lint ve tip denetimi:
 ```powershell
-$env:TEST_DATABASE_URL = "postgresql+asyncpg://hint:hint@localhost:5432/hint"
-pytest
+ruff check .
+mypy app tests evals
+```
+
+PII maskeleme ve sızıntı eval testi:
+```powershell
+python evals/run_pii_eval.py
 ```
 
 ## Komutlar

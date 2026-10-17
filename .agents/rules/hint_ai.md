@@ -18,3 +18,4 @@
    - docs/archive/ altını ASLA okuma. Tüm repoyu tarama. Sadece ilgili milestone ve referans dokümanları oku.
    - Her milestone için önce 10 satırı geçmeyen plan sun ve kullanıcı onayı bekle.
    - Bitince: 5 satır özet, test sonucu, DECISIONS.md / ASSUMPTIONS.md güncellemeleri, commit mesajı öner.
+   - Her milestone bittiğinde README.md'deki Durum tablosunu güncelle ve aynı commit'e dahil et.

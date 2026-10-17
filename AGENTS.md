@@ -22,6 +22,7 @@ Hint.ai: 7–17 yaş öğrencilere cevap değil, kademeli ipucu veren AI öğren
 
 ## Çalışma biçimi
 - Milestone sırası M0→M8; kabul kriteri karşılanmadan bir sonrakine geçme.
+- Her milestone bittiğinde README.md'deki Durum tablosunu güncelle ve aynı commit'e dahil et.
 - Belirsiz karar: docs/INDEX.md'den ilgili bölüme bak; yoksa ASSUMPTIONS.md'ye yaz, ilerle.
 - Kritik güvenlik/gizlilik kararını tek başına verme; PR'da ilgili kişiyi etiketle.
 
