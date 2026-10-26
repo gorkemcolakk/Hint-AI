@@ -62,6 +62,29 @@ async def test_guardian_cannot_access_other_child(client: httpx.AsyncClient) -> 
     assert other.status_code == 404
 
 
+async def test_guardian_lists_only_own_children(client: httpx.AsyncClient) -> None:
+    h1 = await _register_guardian(client, "veli-e@example.com")
+    h2 = await _register_guardian(client, "veli-f@example.com")
+    for nickname in ("Deniz", "Ege"):
+        created = await client.post(
+            "/v1/children",
+            json={"nickname": nickname, "birth_year": 2015, "grade": 6, "purposes": ["service"]},
+            headers=h1,
+        )
+        assert created.status_code == 201
+
+    own = await client.get("/v1/children", headers=h1)
+    assert own.status_code == 200
+    assert [c["nickname"] for c in own.json()] == ["Deniz", "Ege"]
+
+    other = await client.get("/v1/children", headers=h2)
+    assert other.status_code == 200
+    assert other.json() == []
+
+    anonymous = await client.get("/v1/children")
+    assert anonymous.status_code == 401
+
+
 async def test_child_token_requires_service_consent(client: httpx.AsyncClient) -> None:
     h = await _register_guardian(client, "veli-c@example.com")
     created = await client.post(

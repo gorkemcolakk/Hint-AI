@@ -158,6 +158,15 @@ async def create_child(
     return child
 
 
+async def list_owned_children(db: AsyncSession, guardian: models.User) -> list[models.ChildProfile]:
+    rows = await db.scalars(
+        select(models.ChildProfile)
+        .where(models.ChildProfile.guardian_id == guardian.id)
+        .order_by(models.ChildProfile.created_at)
+    )
+    return list(rows)
+
+
 async def get_owned_child(
     db: AsyncSession, guardian: models.User, child_id: uuid.UUID
 ) -> models.ChildProfile:

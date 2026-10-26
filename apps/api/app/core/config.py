@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     access_token_ttl_minutes: int = 15
     child_token_ttl_minutes: int = 30
     refresh_token_ttl_days: int = 30
+    # Expo web istemcisinin API'yi çağırabileceği origin'ler (ortamda JSON liste).
+    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:8081"])
 
     # LLM Gateway
     llm_provider: str = Field(

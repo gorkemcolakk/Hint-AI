@@ -1,10 +1,19 @@
 from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.health import check_database, check_redis
 from app.modules.auth_consent.router import auth_router, children_router
 
 app = FastAPI(title=settings.service_name, version="0.1.0")
+
+# Kimlik Bearer header ile taşınır, cookie yok; bu yüzden credentials kapalı.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
+)
 
 app.include_router(auth_router)
 app.include_router(children_router)

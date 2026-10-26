@@ -16,6 +16,7 @@ from app.modules.auth_consent.service import (
     create_pairing_code,
     get_owned_child,
     issue_tokens,
+    list_owned_children,
     redeem_pairing_code,
     register_user,
     revoke_refresh_token,
@@ -89,6 +90,12 @@ async def create_child_endpoint(
 ) -> schemas.ChildProfileResponse:
     child = await create_child(db, guardian, data)
     return _to_child_response(child)
+
+
+@children_router.get("", response_model=list[schemas.ChildProfileResponse])
+async def list_children(guardian: Guardian, db: Db) -> list[schemas.ChildProfileResponse]:
+    children = await list_owned_children(db, guardian)
+    return [_to_child_response(child) for child in children]
 
 
 @children_router.get("/me", response_model=schemas.ChildProfileResponse)

@@ -10,6 +10,7 @@ REST + SSE (ipucu akışı). Tüm uçlar `/v1/` altında. Kimlik doğrulama: Bea
 | | `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` | |
 | | `POST /auth/verify-email` | |
 | Ebeveyn | `POST /children` | Çocuk profili oluştur (rıza akışı ile) |
+| | `GET /children` | Ebeveynin kendi çocuk profilleri (liste) |
 | | `GET/PATCH /children/{id}` | Politika, limit, gizlilik seviyesi |
 | | `POST /children/{id}/consents` | Rıza ver/geri çek |
 | | `POST /children/{id}/device-pairing` | Çocuk cihazı için eşleştirme kodu |
