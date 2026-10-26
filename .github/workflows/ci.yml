@@ -47,6 +47,37 @@ jobs:
         run: mypy app
       - name: Tests
         run: pytest
+      - name: OpenAPI şeması güncel mi
+        run: |
+          python -m scripts.export_openapi ../client/openapi.json
+          git diff --exit-code ../client/openapi.json
+
+  client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/client/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: API tipleri güncel mi
+        run: |
+          npm run gen:api
+          git diff --exit-code src/api/schema.d.ts
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+      - name: Tests
+        run: npm test -- --ci
+      - name: Web export
+        run: npx expo export --platform web
 
   compose:
     runs-on: ubuntu-latest

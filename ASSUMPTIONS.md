@@ -10,3 +10,6 @@
 - Gemini ücretsiz katmanında içerik Google tarafından ürün geliştirmede kullanılabilir. Geliştirme/test sahte veriyle yapılır, gerçek çocuklarla pilot öncesi ücretli katmana geçilmeli.
 - İstemci (D7-r): mobilde matematik gösterimi WebView + KaTeX ile yapılır, web'de KaTeX doğrudan kullanılır. Performans sorunu çıkarsa SVG tabanlı render değerlendirilir.
 - Expo yönetilen iş akışı (CNG) kullanılır; `ios/` ve `android/` klasörleri gerekmedikçe repoya girmez. Analitik/izleme SDK'sı (ör. Sentry, Firebase Analytics) eklenmez (Kural 5).
+- Geliştirmede API adresi: `EXPO_PUBLIC_API_URL` verilmezse web'de `http://localhost:8000`, Expo Go'da Metro'yu çalıştıran makinenin adresi + `:8000` kullanılır; telefon ile bilgisayar aynı ağda olmalı.
+- Eşleştirme bağlantısı (`/pair?child=…&code=…`) kodu URL'de taşır; kod tek kullanımlık ve 10 dk geçerli olduğu için kabul edildi (tarayıcı geçmişinde kalabilir).
+- Uygulama ikonları şimdilik Expo şablonundan; Hint.ai ikonu marka adı doğrulamasından (D14) sonra eklenir.

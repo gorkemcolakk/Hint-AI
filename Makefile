@@ -28,7 +28,8 @@ eval:
 	@echo eval henüz yapılandırılmadı (M4+)
 
 client-gen:
-	@echo "client-gen henüz yapılandırılmadı (M1.5: openapi-typescript)"
+	cd apps/api && python -m scripts.export_openapi ../client/openapi.json
+	cd apps/client && npm run gen:api
 
 client-test:
-	@echo "client-test henüz yapılandırılmadı (M1.5: jest + tsc)"
+	cd apps/client && npm run lint && npm run typecheck && npm test -- --ci

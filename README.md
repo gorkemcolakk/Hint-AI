@@ -14,7 +14,7 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 |---|---|---|
 | **M0** | Altyapı iskeleti (FastAPI, Docker Compose, CI, lint, `healthz`) | ✅ tamam |
 | **M1** | Kimlik, rıza ve çocuk profili (Auth, ebeveyn kaydı, eşleştirme) | ✅ tamam |
-| **M1.5** | Expo istemci iskeleti (React Native + Web, TypeScript, tek kod tabanı) | 🔜 sıradaki |
+| **M1.5** | Expo istemci iskeleti (React Native + Web, TypeScript, tek kod tabanı) | ✅ tamam |
 | **M2** | LLM Gateway + PII maskeleme (Gemini/OpenAI uyumlu, rıza/kota, eval) | ✅ tamam |
 | **M3** | Gizli çözüm + SymPy doğrulama | 🔜 sıradaki |
 | **M4** | İpucu merdiveni (L0–L4) + sızıntı kontrolü | ⏳ bekliyor |
@@ -24,11 +24,14 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 | **M8** | Expo öğretmen modu (sınıf paneli, ısı haritası) | ⏳ bekliyor |
 | **M9** | Eval otomasyonu, gözlemlenebilirlik ve yayın hazırlığı | ⏳ bekliyor |
 
-## Mevcut özellikler (M1 + M2)
+## Mevcut özellikler (M1 + M1.5 + M2)
 
+- **Expo istemcisi (iOS + Android + Web, tek kod tabanı)** — ebeveyn kaydı ve girişi, çocuk listesi, amaç bazlı rıza kutularıyla (önceden işaretsiz) çocuk ekleme, tek kullanımlık eşleştirme bağlantısı ve çocuk modunda karşılama ekranı.
+- **Tipli API istemcisi** — FastAPI'nin OpenAPI şemasından `openapi-typescript` ile üretilir; şemanın ve tiplerin koddan sapmadığı CI'da kontrol edilir.
+- **İstemci oturum güvenliği** — token mobilde `expo-secure-store`'da, web'de yalnızca bellekte; ebeveyn token'ı bitmeden tek bir yenileme çağrısıyla yenilenir; cihaz çocuk moduna geçince ebeveyn oturumu sunucuda iptal edilir.
 - **Ebeveyn/öğretmen kaydı** — parola `argon2` ile, JWT `access` + `refresh` (rotasyonlu, logout'ta iptal).
 - **Çocuk profili** — takma ad + doğum yılı + sınıf; e-posta/telefon **tutulmaz**.
-- **Amaç bazlı rıza** (`service`, `analytics`, `llm_processing`, `photo_processing`) — `service` ve `ai_processing` rızası olmadan işlem yapılamaz.
+- **Amaç bazlı rıza** (`service`, `analytics`, `llm_processing`, `photo_processing`) — `service` rızası olmadan çocuk oturumu açılamaz, `llm_processing` rızası olmadan LLM çağrısı yapılamaz.
 - **Cihaz eşleştirme** — tek kullanımlık kod (hash'li, 10 dk geçerlilik, 5 hatalı deneme sınırı).
 - **LLM Gateway & Sağlayıcı soyutlaması** — OpenAI uyumlu genel HTTP sağlayıcısı (Google Gemini) ve testler için `MockLLMProvider`.
 - **KVKK uyumlu PII maskeleme** — TCKN (checksum doğrulamalı), TR telefon, e-posta, TR IBAN ve sezgisel ad/okul kalıpları sağlayıcıya gitmeden maskelenir.
@@ -40,8 +43,8 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 | Katman | Yığın |
 |---|---|
 | Backend | FastAPI · Python 3.12 · SQLAlchemy 2 + Alembic · PostgreSQL · Redis |
-| İstemci | Expo · React Native + Web · TypeScript (iOS + Android + Web, tek proje) — planlanıyor |
-| Kalite | pytest · ruff · mypy (strict) · GitHub Actions CI |
+| İstemci | Expo SDK 58 · React Native + Web · TypeScript · Expo Router · TanStack Query (iOS + Android + Web, tek proje) |
+| Kalite | pytest · ruff · mypy (strict) · Jest + Testing Library · ESLint · GitHub Actions CI |
 
 ## Nasıl çalıştırılır
 
@@ -86,6 +89,19 @@ PII maskeleme ve sızıntı eval testi:
 python evals/run_pii_eval.py
 ```
 
+### 4. İstemci (Expo)
+
+API `localhost:8000`'de açıkken:
+
+```powershell
+cd apps/client
+npm install
+npm run web    # http://localhost:8081
+npm start      # telefonda Expo Go ile açmak için QR kodu gösterir
+```
+
+Ayrıntılar (telefonda deneme, API adresi, testler): [apps/client/README.md](apps/client/README.md)
+
 ## Komutlar
 
 | Komut | Açıklama |
@@ -102,7 +118,7 @@ python evals/run_pii_eval.py
 hint-ai/
 ├─ apps/
 │  ├─ api/        # FastAPI (kimlik, rıza, çocuk profili)
-│  ├─ client/     # Expo / React Native (iOS/Android/Web) — planlanıyor
+│  ├─ client/     # Expo / React Native (iOS/Android/Web)
 │  ├─ landing/    # Statik landing — planlanıyor
 │  └─ worker/     # Arka plan işleri — planlanıyor
 ├─ docs/          # Bölümlere ayrılmış plan + milestone'lar
