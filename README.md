@@ -14,14 +14,14 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 |---|---|---|
 | **M0** | Altyapı iskeleti (FastAPI, Docker Compose, CI, lint, `healthz`) | ✅ tamam |
 | **M1** | Kimlik, rıza ve çocuk profili (Auth, ebeveyn kaydı, eşleştirme) | ✅ tamam |
-| **M1.5** | Flutter istemci iskeleti (iOS + Android + Web, tek kod tabanı) | 🔜 sıradaki |
+| **M1.5** | Expo istemci iskeleti (React Native + Web, TypeScript, tek kod tabanı) | 🔜 sıradaki |
 | **M2** | LLM Gateway + PII maskeleme (Gemini/OpenAI uyumlu, rıza/kota, eval) | ✅ tamam |
 | **M3** | Gizli çözüm + SymPy doğrulama | 🔜 sıradaki |
 | **M4** | İpucu merdiveni (L0–L4) + sızıntı kontrolü | ⏳ bekliyor |
 | **M5** | Güvenlik katmanı ve moderasyon (kriz yönlendirmesi, injection) | ⏳ bekliyor |
-| **M6** | Flutter çocuk modu (öğrenme akışı, yaş temaları) | ⏳ bekliyor |
-| **M7** | Flutter ebeveyn modu (raporlar, kota, faturalama) | ⏳ bekliyor |
-| **M8** | Flutter öğretmen modu (sınıf paneli, ısı haritası) | ⏳ bekliyor |
+| **M6** | Expo çocuk modu (öğrenme akışı, yaş temaları) | ⏳ bekliyor |
+| **M7** | Expo ebeveyn modu (raporlar, kota, faturalama) | ⏳ bekliyor |
+| **M8** | Expo öğretmen modu (sınıf paneli, ısı haritası) | ⏳ bekliyor |
 | **M9** | Eval otomasyonu, gözlemlenebilirlik ve yayın hazırlığı | ⏳ bekliyor |
 
 ## Mevcut özellikler (M1 + M2)
@@ -40,7 +40,7 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 | Katman | Yığın |
 |---|---|
 | Backend | FastAPI · Python 3.12 · SQLAlchemy 2 + Alembic · PostgreSQL · Redis |
-| İstemci | Flutter (iOS + Android + Web, tek proje) — planlanıyor |
+| İstemci | Expo · React Native + Web · TypeScript (iOS + Android + Web, tek proje) — planlanıyor |
 | Kalite | pytest · ruff · mypy (strict) · GitHub Actions CI |
 
 ## Nasıl çalıştırılır
@@ -94,7 +94,7 @@ python evals/run_pii_eval.py
 | `make test` | Birim + entegrasyon testleri |
 | `make lint` | `ruff` + `mypy` |
 | `make eval` / `make migrate` | Eval / Alembic migrasyon |
-| `make client-gen` / `make client-test` | OpenAPI'den Dart istemcisi / Flutter testleri |
+| `make client-gen` / `make client-test` | OpenAPI'den TypeScript istemcisi / istemci testleri (Jest) |
 
 ## Repo yapısı
 
@@ -102,7 +102,7 @@ python evals/run_pii_eval.py
 hint-ai/
 ├─ apps/
 │  ├─ api/        # FastAPI (kimlik, rıza, çocuk profili)
-│  ├─ client/     # Flutter (iOS/Android/Web) — planlanıyor
+│  ├─ client/     # Expo / React Native (iOS/Android/Web) — planlanıyor
 │  ├─ landing/    # Statik landing — planlanıyor
 │  └─ worker/     # Arka plan işleri — planlanıyor
 ├─ docs/          # Bölümlere ayrılmış plan + milestone'lar

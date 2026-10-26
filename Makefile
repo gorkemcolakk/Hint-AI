@@ -28,7 +28,7 @@ eval:
 	@echo eval henüz yapılandırılmadı (M4+)
 
 client-gen:
-	@echo client-gen henüz yapılandırılmadı (M6+)
+	@echo "client-gen henüz yapılandırılmadı (M1.5: openapi-typescript)"
 
 client-test:
-	@echo client-test henüz yapılandırılmadı (M6+)
+	@echo "client-test henüz yapılandırılmadı (M1.5: jest + tsc)"

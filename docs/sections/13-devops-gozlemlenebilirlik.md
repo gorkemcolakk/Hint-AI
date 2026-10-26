@@ -3,7 +3,7 @@
 ### 13.1 CI/CD
 
 - `main` korumalı, PR zorunlu, en az 1 onay.
-- Pipeline: lint (ruff/flake8) → tip kontrol (mypy) → birim test → entegrasyon test → güvenlik taraması (SAST, SCA, secret scan) → **eval smoke seti** → `flutter analyze` → `flutter test` → web + Android build (matris) → imaj build → staging deploy → e2e → manuel onay → prod.
+- Pipeline: lint (ruff/flake8) → tip kontrol (mypy) → birim test → entegrasyon test → güvenlik taraması (SAST, SCA, secret scan) → **eval smoke seti** → istemci lint + tip kontrol (`eslint`, `tsc --noEmit`) → `jest` → web + Android build (matris) → imaj build → staging deploy → e2e → manuel onay → prod.
 - Veritabanı migrasyonları (Alembic), geri alınabilir, expand/contract deseni.
 - Feature flag: yeni ipucu stratejileri/prompt'lar kademeli açılır.
 - Hızlı geri alma (rollback) planı.
@@ -15,7 +15,7 @@
 | Birim | İpucu seviye mantığı, escalation, sızıntı kural kontrolü, PII maskeleme, SymPy doğrulama, politika kilidi |
 | Entegrasyon | API + DB + Redis, LLM gateway (sahte sağlayıcı ile), webhook'lar |
 | Sözleşme (contract) | Frontend ↔ API OpenAPI şeması |
-| E2E | Kritik akışlar: ebeveyn kayıt → rıza → çocuk eşleştirme → soru → ipucu → çözüm; abonelik. Flutter integration_test ile hem web hem mobilde |
+| E2E | Kritik akışlar: ebeveyn kayıt → rıza → çocuk eşleştirme → soru → ipucu → çözüm; abonelik. Aynı senaryolar web'de Playwright, mobilde Maestro ile |
 | AI eval | Bölüm 11 |
 | Yük | Eşzamanlı oturum, SSE bağlantıları, LLM gecikme simülasyonu |
 | Güvenlik | OWASP, yetki atlama, injection setleri |

@@ -23,6 +23,8 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Flutter (ileriki milestone'lar)
-apps/client/build/
-apps/client/.dart_tool/
+# İstemci (Expo / React Native)
+apps/client/node_modules/
+apps/client/.expo/
+apps/client/dist/
+apps/client/web-build/

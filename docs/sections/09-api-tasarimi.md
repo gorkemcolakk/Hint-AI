@@ -50,8 +50,8 @@ REST + SSE (ipucu akışı). Tüm uçlar `/v1/` altında. Kimlik doğrulama: Bea
 - Oran sınırı: çocuk başına dakikada N istek, IP başına N istek.
 - Hata formatı: RFC 7807 problem details.
 - Versiyonlama: `/v1`, kırıcı değişiklik `/v2`.
-- OpenAPI şeması kod ile birlikte üretilir (FastAPI); Dart istemcisi OpenAPI şemasından openapi-generator ile üretilir.
-- İpucu akışı (SSE): Flutter'da SSE, http/dio streaming ile okunur, web ve mobilde ayrı test edilir.
+- OpenAPI şeması kod ile birlikte üretilir (FastAPI); TypeScript istemcisi OpenAPI şemasından openapi-typescript ile üretilir (tipler + openapi-fetch).
+- İpucu akışı (SSE): istemcide `expo/fetch` streaming ile okunur (alternatif: react-native-sse), web ve mobilde ayrı test edilir.
 
 ---
 

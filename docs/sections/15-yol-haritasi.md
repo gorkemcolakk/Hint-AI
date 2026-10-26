@@ -22,9 +22,9 @@
 | **M3** | Gizli çözüm + SymPy doğrulama | Sınıflandırma, çözüm üretimi, doğrulama | Golden set'te doğrulama oranı raporlanır |
 | **M4** | İpucu merdiveni + sızıntı kontrolü | L0–L4, escalation, kural + yargıç sızıntı kontrolü | Golden set'te L0–L3 sızıntı < %1 (hedef); regresyon testleri |
 | **M5** | Güvenlik katmanı | Girdi/çıktı moderasyonu, kriz akışı, injection seti | Adversarial setin ≥ %98'i atlatılamaz |
-| **M6** | Flutter çocuk modu (mobil + web) | Flutter akışı (mobil + web), yaş temaları, erişilebilirlik | Aynı akış hem mobil hem web e2e testinden geçer; kullanılabilirlik testi notları |
-| **M7** | Flutter ebeveyn modu + rapor + faturalama | Panel, haftalık rapor, abonelik, kota | Rapor doğruluğu testi, webhook idempotency |
-| **M8** | Flutter öğretmen modu + eval otomasyonu + yayın hazırlığı | Sınıf, ısı haritası, CI'da eval, gözlemlenebilirlik, güvenlik gözden geçirme | Eval CI'da, runbook'lar, pentest bulguları kapatılmış |
+| **M6** | Expo çocuk modu (mobil + web) | İstemci akışı (Expo, mobil + web), yaş temaları, erişilebilirlik | Aynı akış hem mobil hem web e2e testinden geçer; kullanılabilirlik testi notları |
+| **M7** | Expo ebeveyn modu + rapor + faturalama | Panel, haftalık rapor, abonelik, kota | Rapor doğruluğu testi, webhook idempotency |
+| **M8** | Expo öğretmen modu + eval otomasyonu + yayın hazırlığı | Sınıf, ısı haritası, CI'da eval, gözlemlenebilirlik, güvenlik gözden geçirme | Eval CI'da, runbook'lar, pentest bulguları kapatılmış |
 
 ### 15.3 Paralel iş akışları
 

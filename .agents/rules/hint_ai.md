@@ -10,7 +10,7 @@
    - Prompt değişikliği = yeni sürüm + eval + PR.
 
 2. **Teknoloji**:
-   - İstemci: Flutter (iOS + Android + Web, tek proje). Next.js YOK.
+   - İstemci: Expo / React Native + react-native-web, TypeScript (iOS + Android + Web, tek proje). Next.js YOK.
    - Backend: FastAPI (Python 3.12), PostgreSQL (+pgvector), Redis, SQLAlchemy async, Alembic.
 
 3. **Çalışma ve Token Disiplini**:

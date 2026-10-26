@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TB
   subgraph Clients
-    A[Flutter İstemcisi (iOS/Android/Web): çocuk / ebeveyn / öğretmen modları]
+    A[Expo / React Native İstemcisi (iOS/Android/Web): çocuk / ebeveyn / öğretmen modları]
     D[Admin/Moderasyon Konsolu - ayrı mod veya basit web arayüzü]
   end
 
@@ -145,7 +145,7 @@ Bölüm 7.1'deki kutular **mantıksal modüllerdir.** MVP'de tek FastAPI uygulam
 
 | Katman | Seçenek A | Seçenek B | Seçenek C | Not |
 |---|---|---|---|---|
-| İstemci (çocuk, ebeveyn, öğretmen) | Flutter (mobil + web) | — | — | Tek kod tabanı: iOS + Android + Web; landing ayrı statik site |
+| İstemci (çocuk, ebeveyn, öğretmen) | **Expo / React Native + Web (seçildi) ✅** (TypeScript) | Flutter (D7 ilk karar) | — | Tek kod tabanı: iOS + Android + Web; landing ayrı statik site |
 | Backend | **FastAPI (seçildi) ✅** (async, tip güvenli, OpenAPI otomatik) | Django (admin hazır) | — | LLM streaming için async avantajı |
 | Veritabanı | PostgreSQL | MySQL | — | Postgres + pgvector tek çatı |
 | Önbellek/kuyruk | Redis (+ RQ/Celery/Arq) | RabbitMQ | Cloud queue | Basit başla |

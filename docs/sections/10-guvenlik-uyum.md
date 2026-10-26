@@ -33,7 +33,7 @@
 ### 10.3 Uygulama güvenliği (AppSec)
 
 - **Kimlik:** parola hash (argon2/bcrypt), e-posta doğrulama, MFA (ebeveyn/öğretmen/admin için isteğe bağlı, admin için zorunlu), brute-force koruması.
-- **Token saklama:** mobilde flutter_secure_storage, webde httpOnly cookie. Çocuk modunda üçüncü taraf SDK yok, parental gate uygulanır.
+- **Token saklama:** mobilde expo-secure-store (Keychain/Keystore), webde httpOnly cookie. Çocuk modunda üçüncü taraf SDK yok, parental gate uygulanır.
 - **Yetkilendirme:** RBAC + nesne düzeyi kontrol (IDOR önleme). Öğretmen yalnızca ebeveyn onaylı öğrencilerin verisini görür.
 - **Aktarım ve depolama:** TLS 1.2+, veritabanı disk şifrelemesi, hassas alanlarda uygulama düzeyi şifreleme (`hidden_solution`, ham foto).
 - **Sır yönetimi:** Ortam değişkeni değil sır yöneticisi, repoya sır koymama (pre-commit secret scan).

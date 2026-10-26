@@ -17,8 +17,9 @@
 | R13 | Veri ihlali | Düşük | Çok yüksek | Şifreleme, erişim kontrolü, minimizasyon, olay müdahale planı | BM-3 |
 | R14 | İntihal/akademik dürüstlük algısı (öğretmenler ürüne güvenmez) | Orta | Orta | Şeffaf rapor, "çözüm görüldü" bildirimi, öğretmen paneli | İŞ-1 |
 | R15 | Telif (içerik, görsel, marka) | Düşük | Orta | Kendi içerik/lisans, marka taraması | İŞ-1 |
-| R16 | Flutter web'de SEO, ilk yükleme ve ekran okuyucu zayıflığı | Orta | Orta | Landing ayrı site, Semantics testi | BM-2 |
-| R17 | Tek frontend geliştirici darboğazı (tek Flutter kod tabanı) | Orta | Orta | İş paylaşımı, ortak bileşen kütüphanesi | BM-2 |
+| R16 | Web'de erişilebilirlik ve ilk yükleme (D7-r ile azaltıldı: react-native-web DOM üretir) | Düşük | Orta | Landing ayrı site, erişilebilirlik etiketleri + ekran okuyucu testi, web bundle boyutu takibi | BM-2 |
+| R17 | Tek frontend geliştirici darboğazı (tek istemci kod tabanı) | Orta | Orta | İş paylaşımı, ortak bileşen kütüphanesi | BM-2 |
+| R18 | Ekibin React / TypeScript'e yeni olması (öğrenme eğrisi, M6 gecikmesi) | Orta | Orta | M1.5'te küçük iskeletle başla, kavramları Flutter karşılıklarıyla öğren, her istemci PR'ında kod incelemesi | BM-2 |
 
 ---
 

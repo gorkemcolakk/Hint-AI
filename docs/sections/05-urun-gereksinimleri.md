@@ -54,7 +54,7 @@
 | Alan | Hedef (öneri) |
 |---|---|
 | Performans | İpucu ilk token < 2 sn, tam yanıt p95 < 6 sn |
-| Erişilebilirlik | WCAG 2.1 AA, disleksi dostu yazı tipi seçeneği, ekran okuyucu uyumu. Flutter web'de ekran okuyucu için Semantics etiketleri zorunlu, test edilir. |
+| Erişilebilirlik | WCAG 2.1 AA, disleksi dostu yazı tipi seçeneği, ekran okuyucu uyumu. react-native-web DOM üretir; erişilebilirlik etiketleri (`accessibilityLabel`, `role`) zorunlu, web ve mobilde ekran okuyucu ile test edilir. |
 | Kullanılabilirlik | 7–12 yaş için büyük dokunma alanı, minimal metin, okuma seviyesine uygun dil |
 | Güvenilirlik | %99.5 uptime (MVP), LLM kesintisinde zarif düşüş ("şu an ipucu veremiyorum, şunu deneyebilirsin") |
 | Çevrimdışı | Hafif: son oturum önbelleği; tam offline kapsam dışı |
@@ -84,7 +84,7 @@ Sorun: günlük limit dolunca çocuk takılı kalır.
 - Her ekranda tek ana eylem.
 - Bot kişiliği: sabırlı, meraklı, yargılamayan; yanlışa "yanlış" yerine "bir de şuna bakalım".
 - Boş durumlar, hata durumları, yükleniyor durumları tasarlanır (kütüphane: Figma bileşenleri).
-- Ebeveyn paneli ve öğretmen paneli çocuk uygulamasından görsel olarak ayrışır (Flutter içinde ayrı tema ve mod olarak).
+- Ebeveyn paneli ve öğretmen paneli çocuk uygulamasından görsel olarak ayrışır (aynı Expo istemcisi içinde ayrı tema ve route grubu olarak).
 
 ---
 

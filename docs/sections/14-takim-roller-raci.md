@@ -5,14 +5,14 @@
 | Kişi | Birincil rol | İkincil sorumluluk |
 |---|---|---|
 | BM-1 | **Teknik lider / Backend & AI boru hattı** (hint engine, LLM gateway) | Mimari kararlar, kod inceleme |
-| BM-2 | **Flutter istemcisi (çocuk + ebeveyn + öğretmen, mobil + web)** | Tasarım sistemi, kullanılabilirlik testi |
+| BM-2 | **Expo / React Native istemcisi (çocuk + ebeveyn + öğretmen, mobil + web)** | Tasarım sistemi, kullanılabilirlik testi |
 | BM-3 | **Eval, veri ve güvenlik mühendisi** (golden set, red-team, SymPy doğrulama, güvenlik) | Veri modeli, PII maskeleme |
 | EM-1 | **Ürün & operasyon & birim ekonomisi** (IE) | Süreç tasarımı, KPI, kullanıcı araştırması planı |
 | EM-2 | **Finansal model, fiyat, tedarik/kapasite** (IE) | Maliyet optimizasyonu, risk kaydı |
 | İŞ-1 | **İş geliştirme, GTM, okul/öğretmen ilişkileri, pitch, hukuk/danışman koordinasyonu** | Müşteri görüşmeleri, marka |
 
 > Rol dağılımı ekip üyelerinin ilgi ve güçlü yanlarına göre ekip toplantısında birlikte netleştirilmelidir (özellikle tasarım sistemi sahibi kim olacak?).
-> Tek Flutter kod tabanı tek kişiye yüklenirse darboğaz olur; BM-3 ile işi paylaşın.
+> Tek istemci kod tabanı tek kişiye yüklenirse darboğaz olur; BM-3 ile işi paylaşın.
 
 ### 14.2 RACI (özet)
 

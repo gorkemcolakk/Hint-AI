@@ -12,7 +12,7 @@ Hint.ai: 7–17 yaş öğrencilere cevap değil, kademeli ipucu veren AI öğren
 7. Prompt değişikliği = yeni sürüm + eval + PR.
 
 ## Teknoloji
-- İstemci: Flutter (iOS + Android + Web, tek proje). Next.js yok.
+- İstemci: Expo / React Native + react-native-web, TypeScript (iOS + Android + Web, tek proje). Next.js yok.
 - Backend: FastAPI / Python 3.12, PostgreSQL (+pgvector), Redis.
 - Araçlar: pytest, ruff, mypy, Docker Compose.
 

@@ -77,8 +77,11 @@ Mimari kural: **LLM çağrıları tek bir `llm-gateway` modülünden geçer.** S
 | Flutter (iOS+Android+Web tek kod) | Ekipte bilgi var, tek kod tabanı | Web SEO zayıf, mağaza onayı |
 | PWA (web önce) | Mağaza onayı yok, hızlı iterasyon, okullarda tarayıcı ile kullanım | Push/kamera sınırlamaları |
 | Flutter mobil + ayrı web (ebeveyn/öğretmen paneli için React/Next.js) | Panel ihtiyaçlarına uygun | İki tech stack |
+| Expo / React Native + react-native-web (iOS+Android+Web tek kod) | Web'de gerçek DOM (erişilebilirlik, hafif ilk yükleme), geniş React ekosistemi (panel, grafik), TypeScript | Mobilde matematik gösterimi WebView/SVG gerektirir, ekip için öğrenme eğrisi |
 
-Karar (D7): Flutter, tek kod tabanından iOS + Android + Web. Landing page ayrı, basit bir statik site.
+Karar (D7, 2026-10-16): Flutter.
+
+**Revizyon (D7-r, 2026-10-26): Expo (React Native + react-native-web), TypeScript; tek kod tabanından iOS + Android + Web.** Gerekçe: web erişilebilirliği ve ilk yükleme (R16), ekibin yeni teknoloji öğrenme hedefi; istemci kodu yazılmadan değiştirildiği için geçiş maliyeti yok. Landing page ayrı, basit bir statik site.
 
 ---
 

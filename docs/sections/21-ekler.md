@@ -99,7 +99,7 @@ hint-ai/
 │  │  │  └─ main.py
 │  │  ├─ migrations/          # Alembic
 │  │  └─ tests/
-│  ├─ client/                # Flutter (iOS/Android/Web: çocuk / ebeveyn / öğretmen modları)
+│  ├─ client/                # Expo / React Native (iOS/Android/Web: çocuk / ebeveyn / öğretmen modları)
 │  ├─ landing/               # Statik landing site (ön kayıt, SEO)
 │  └─ worker/                # Arka plan işleri (raporlar, silme, bildirim)
 ├─ evals/
@@ -133,7 +133,7 @@ Hint.ai, 7–17 yaş öğrenciler için cevap yerine kademeli ipucu veren AI ö�
 7. Prompt değişikliği = yeni sürüm dosyası + eval çalıştırma + PR.
 
 ## Teknoloji
-Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL (+pgvector), Redis, pytest, ruff, mypy. Flutter (iOS/Android/Web, tek istemci). Next.js yok. Docker Compose (yerel).
+Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL (+pgvector), Redis, pytest, ruff, mypy. Expo / React Native + TypeScript (iOS/Android/Web, tek istemci). Next.js yok. Docker Compose (yerel).
 (Kararlar DECISIONS.md'de değişmişse oraya uy.)
 
 ## Komutlar
@@ -142,8 +142,8 @@ Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL (+pgvector), Redis, pyt
 - `make lint` — ruff + mypy
 - `make eval` — golden + adversarial + safety eval
 - `make migrate` — Alembic
-- `make client-gen` — OpenAPI'den Dart istemcisi üret (openapi-generator)
-- `make client-test` — `flutter test` + web build kontrolü
+- `make client-gen` — OpenAPI'den TypeScript istemcisi üret (openapi-typescript)
+- `make client-test` — `jest` + `tsc --noEmit` + web export kontrolü
 
 ## Kodlama standartları
 - Tip ipuçları zorunlu, modül sınırlarına saygı (modüller yalnızca birbirinin public arayüzünü çağırır).
