@@ -81,7 +81,20 @@ Mimari kural: **LLM çağrıları tek bir `llm-gateway` modülünden geçer.** S
 
 Karar (D7, 2026-10-16): Flutter.
 
-**Revizyon (D7-r, 2026-10-26): Expo (React Native + react-native-web), TypeScript; tek kod tabanından iOS + Android + Web.** Gerekçe: web erişilebilirliği ve ilk yükleme (R16), ekibin yeni teknoloji öğrenme hedefi; istemci kodu yazılmadan değiştirildiği için geçiş maliyeti yok. Landing page ayrı, basit bir statik site.
+**Revizyon (D7-r, 2026-10-26): Expo (React Native + react-native-web), TypeScript; tek kod tabanından iOS + Android + Web.**
+
+**Neden Flutter'dan vazgeçtik?**
+
+- **Web bu üründe birinci sınıf.** Öğretmen paneli ve ebeveyn raporları bilgisayardan açılacak, okullarda da tarayıcı kullanılacak. Flutter web sayfayı tek bir tuvale (canvas) resim gibi çizer; ekran okuyucular zorlanır (hedef WCAG 2.1 AA, Bölüm 5) ve ilk açılış ağır olur (R16). React Native Web ise gerçek bir web sayfası (HTML) üretir.
+- **Panel ve matematik araçları.** Tablo, grafik, ısı haritası ve web'de matematik gösterimi (KaTeX) için React ekosistemi çok daha geniş.
+- **Doğru zaman.** İstemci kodu henüz yazılmamıştı; değişikliğin geçiş maliyeti yok.
+
+**Neyi göze aldık?**
+
+- Ekibin mevcut Flutter tecrübesinden vazgeçiyoruz; yeni yığına geçişin gecikme riski R18'de takip ediliyor.
+- Mobilde matematik gösterimi Flutter'daki kadar doğal değil (WebView + KaTeX gerekiyor).
+
+Landing page ayrı, basit bir statik site.
 
 ---
 
