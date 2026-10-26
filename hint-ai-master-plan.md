@@ -1,6 +1,6 @@
 # Hint.ai — Kapsamlı Proje Mimarisi ve Uygulama Planı
 
-> **Sürüm:** 1.0 · **Tarih:** 16 Ekim 2026 · **Bağlam:** Dijital Girişimcilik dersi grup projesi (6 kişi: 3 Bilgisayar Müh., 2 Endüstri Müh., 1 İşletme)
+> **Sürüm:** 1.1 · **Tarih:** 26 Ekim 2026 (v1.1: istemci Flutter → Expo / React Native, D7-r) · **Bağlam:** Dijital Girişimcilik dersi grup projesi (6 kişi: 3 Bilgisayar Müh., 2 Endüstri Müh., 1 İşletme)
 > **Amaç:** Hem ders teslimleri (iş modeli, pitch, demo) hem de gerçek bir MVP için tek kaynak doküman. Bölüm 0 ve Ek bölümleri doğrudan bir AI kodlama asistanına (Claude Code, Cursor vb.) verilecek şekilde yazıldı.
 > **Önemli not:** Rakam, fiyat, yasal eşik ve rakip bilgilerinin bir kısmı varsayımdır veya zamanla değişir. Bunlar `⚠️ DOĞRULA` ile işaretlendi. Teslimden önce mutlaka güncel kaynaktan kontrol edin.
 
@@ -199,8 +199,11 @@ Mimari kural: **LLM çağrıları tek bir `llm-gateway` modülünden geçer.** S
 | Flutter (iOS+Android+Web tek kod) | Ekipte bilgi var, tek kod tabanı | Web SEO zayıf, mağaza onayı |
 | PWA (web önce) | Mağaza onayı yok, hızlı iterasyon, okullarda tarayıcı ile kullanım | Push/kamera sınırlamaları |
 | Flutter mobil + ayrı web (ebeveyn/öğretmen paneli için React/Next.js) | Panel ihtiyaçlarına uygun | İki tech stack |
+| Expo / React Native + react-native-web (iOS+Android+Web tek kod) | Web'de gerçek DOM (erişilebilirlik, hafif ilk yükleme), geniş React ekosistemi (panel, grafik), TypeScript | Mobilde matematik gösterimi WebView/SVG gerektirir, ekip için öğrenme eğrisi |
 
-Karar (D7): Flutter, tek kod tabanından iOS + Android + Web. Landing page ayrı, basit bir statik site.
+Karar (D7, 2026-10-16): Flutter.
+
+**Revizyon (D7-r, 2026-10-26): Expo (React Native + react-native-web), TypeScript; tek kod tabanından iOS + Android + Web.** Gerekçe: web erişilebilirliği ve ilk yükleme (R16), ekibin yeni teknoloji öğrenme hedefi; istemci kodu yazılmadan değiştirildiği için geçiş maliyeti yok. Landing page ayrı, basit bir statik site.
 
 ---
 
@@ -313,7 +316,7 @@ Aday rakipler (`⚠️ DOĞRULA`: ürünlerin güncel durumu, fiyatı ve Türkiy
 | Alan | Hedef (öneri) |
 |---|---|
 | Performans | İpucu ilk token < 2 sn, tam yanıt p95 < 6 sn |
-| Erişilebilirlik | WCAG 2.1 AA, disleksi dostu yazı tipi seçeneği, ekran okuyucu uyumu. Flutter web'de ekran okuyucu için Semantics etiketleri zorunlu, test edilir. |
+| Erişilebilirlik | WCAG 2.1 AA, disleksi dostu yazı tipi seçeneği, ekran okuyucu uyumu. react-native-web DOM üretir; erişilebilirlik etiketleri (`accessibilityLabel`, `role`) zorunlu, web ve mobilde ekran okuyucu ile test edilir. |
 | Kullanılabilirlik | 7–12 yaş için büyük dokunma alanı, minimal metin, okuma seviyesine uygun dil |
 | Güvenilirlik | %99.5 uptime (MVP), LLM kesintisinde zarif düşüş ("şu an ipucu veremiyorum, şunu deneyebilirsin") |
 | Çevrimdışı | Hafif: son oturum önbelleği; tam offline kapsam dışı |
@@ -343,7 +346,7 @@ Sorun: günlük limit dolunca çocuk takılı kalır.
 - Her ekranda tek ana eylem.
 - Bot kişiliği: sabırlı, meraklı, yargılamayan; yanlışa "yanlış" yerine "bir de şuna bakalım".
 - Boş durumlar, hata durumları, yükleniyor durumları tasarlanır (kütüphane: Figma bileşenleri).
-- Ebeveyn paneli ve öğretmen paneli çocuk uygulamasından görsel olarak ayrışır (Flutter içinde ayrı tema ve mod olarak).
+- Ebeveyn paneli ve öğretmen paneli çocuk uygulamasından görsel olarak ayrışır (aynı Expo istemcisi içinde ayrı tema ve route grubu olarak).
 
 ---
 
@@ -416,7 +419,7 @@ Matematikte yaygın hatalar (ör. `(a+b)² = a²+b²`, işaret hatası, kesirde 
 ```mermaid
 flowchart TB
   subgraph Clients
-    A[Flutter İstemcisi (iOS/Android/Web): çocuk / ebeveyn / öğretmen modları]
+    A[Expo / React Native İstemcisi (iOS/Android/Web): çocuk / ebeveyn / öğretmen modları]
     D[Admin/Moderasyon Konsolu - ayrı mod veya basit web arayüzü]
   end
 
@@ -556,7 +559,7 @@ Bölüm 7.1'deki kutular **mantıksal modüllerdir.** MVP'de tek FastAPI uygulam
 
 | Katman | Seçenek A | Seçenek B | Seçenek C | Not |
 |---|---|---|---|---|
-| İstemci (çocuk, ebeveyn, öğretmen) | Flutter (mobil + web) | — | — | Tek kod tabanı: iOS + Android + Web; landing ayrı statik site |
+| İstemci (çocuk, ebeveyn, öğretmen) | **Expo / React Native + Web (seçildi) ✅** (TypeScript) | Flutter (D7 ilk karar) | — | Tek kod tabanı: iOS + Android + Web; landing ayrı statik site |
 | Backend | **FastAPI (seçildi) ✅** (async, tip güvenli, OpenAPI otomatik) | Django (admin hazır) | — | LLM streaming için async avantajı |
 | Veritabanı | PostgreSQL | MySQL | — | Postgres + pgvector tek çatı |
 | Önbellek/kuyruk | Redis (+ RQ/Celery/Arq) | RabbitMQ | Cloud queue | Basit başla |
@@ -848,8 +851,8 @@ REST + SSE (ipucu akışı). Tüm uçlar `/v1/` altında. Kimlik doğrulama: Bea
 - Oran sınırı: çocuk başına dakikada N istek, IP başına N istek.
 - Hata formatı: RFC 7807 problem details.
 - Versiyonlama: `/v1`, kırıcı değişiklik `/v2`.
-- OpenAPI şeması kod ile birlikte üretilir (FastAPI); Dart istemcisi OpenAPI şemasından openapi-generator ile üretilir.
-- İpucu akışı (SSE): Flutter'da SSE, http/dio streaming ile okunur, web ve mobilde ayrı test edilir.
+- OpenAPI şeması kod ile birlikte üretilir (FastAPI); TypeScript istemcisi OpenAPI şemasından openapi-typescript ile üretilir (tipler + openapi-fetch).
+- İpucu akışı (SSE): istemcide `expo/fetch` streaming ile okunur (alternatif: react-native-sse), web ve mobilde ayrı test edilir.
 
 ---
 
@@ -888,7 +891,7 @@ REST + SSE (ipucu akışı). Tüm uçlar `/v1/` altında. Kimlik doğrulama: Bea
 ### 10.3 Uygulama güvenliği (AppSec)
 
 - **Kimlik:** parola hash (argon2/bcrypt), e-posta doğrulama, MFA (ebeveyn/öğretmen/admin için isteğe bağlı, admin için zorunlu), brute-force koruması.
-- **Token saklama:** mobilde flutter_secure_storage, webde httpOnly cookie. Çocuk modunda üçüncü taraf SDK yok, parental gate uygulanır.
+- **Token saklama:** mobilde expo-secure-store (Keychain/Keystore), webde httpOnly cookie. Çocuk modunda üçüncü taraf SDK yok, parental gate uygulanır.
 - **Yetkilendirme:** RBAC + nesne düzeyi kontrol (IDOR önleme). Öğretmen yalnızca ebeveyn onaylı öğrencilerin verisini görür.
 - **Aktarım ve depolama:** TLS 1.2+, veritabanı disk şifrelemesi, hassas alanlarda uygulama düzeyi şifreleme (`hidden_solution`, ham foto).
 - **Sır yönetimi:** Ortam değişkeni değil sır yöneticisi, repoya sır koymama (pre-commit secret scan).
@@ -1035,7 +1038,7 @@ Hedef göstergeler (girişimcilik sezgisi, ⚠️ doğrulayın): LTV/CAC ≥ 3, 
 ### 13.1 CI/CD
 
 - `main` korumalı, PR zorunlu, en az 1 onay.
-- Pipeline: lint (ruff/flake8) → tip kontrol (mypy) → birim test → entegrasyon test → güvenlik taraması (SAST, SCA, secret scan) → **eval smoke seti** → `flutter analyze` → `flutter test` → web + Android build (matris) → imaj build → staging deploy → e2e → manuel onay → prod.
+- Pipeline: lint (ruff/flake8) → tip kontrol (mypy) → birim test → entegrasyon test → güvenlik taraması (SAST, SCA, secret scan) → **eval smoke seti** → istemci lint + tip kontrol (`eslint`, `tsc --noEmit`) → `jest` → web + Android build (matris) → imaj build → staging deploy → e2e → manuel onay → prod.
 - Veritabanı migrasyonları (Alembic), geri alınabilir, expand/contract deseni.
 - Feature flag: yeni ipucu stratejileri/prompt'lar kademeli açılır.
 - Hızlı geri alma (rollback) planı.
@@ -1047,7 +1050,7 @@ Hedef göstergeler (girişimcilik sezgisi, ⚠️ doğrulayın): LTV/CAC ≥ 3, 
 | Birim | İpucu seviye mantığı, escalation, sızıntı kural kontrolü, PII maskeleme, SymPy doğrulama, politika kilidi |
 | Entegrasyon | API + DB + Redis, LLM gateway (sahte sağlayıcı ile), webhook'lar |
 | Sözleşme (contract) | Frontend ↔ API OpenAPI şeması |
-| E2E | Kritik akışlar: ebeveyn kayıt → rıza → çocuk eşleştirme → soru → ipucu → çözüm; abonelik. Flutter integration_test ile hem web hem mobilde |
+| E2E | Kritik akışlar: ebeveyn kayıt → rıza → çocuk eşleştirme → soru → ipucu → çözüm; abonelik. Aynı senaryolar web'de Playwright, mobilde Maestro ile |
 | AI eval | Bölüm 11 |
 | Yük | Eşzamanlı oturum, SSE bağlantıları, LLM gecikme simülasyonu |
 | Güvenlik | OWASP, yetki atlama, injection setleri |
@@ -1078,14 +1081,14 @@ Hedef göstergeler (girişimcilik sezgisi, ⚠️ doğrulayın): LTV/CAC ≥ 3, 
 | Kişi | Birincil rol | İkincil sorumluluk |
 |---|---|---|
 | BM-1 | **Teknik lider / Backend & AI boru hattı** (hint engine, LLM gateway) | Mimari kararlar, kod inceleme |
-| BM-2 | **Flutter istemcisi (çocuk + ebeveyn + öğretmen, mobil + web)** | Tasarım sistemi, kullanılabilirlik testi |
+| BM-2 | **Expo / React Native istemcisi (çocuk + ebeveyn + öğretmen, mobil + web)** | Tasarım sistemi, kullanılabilirlik testi |
 | BM-3 | **Eval, veri ve güvenlik mühendisi** (golden set, red-team, SymPy doğrulama, güvenlik) | Veri modeli, PII maskeleme |
 | EM-1 | **Ürün & operasyon & birim ekonomisi** (IE) | Süreç tasarımı, KPI, kullanıcı araştırması planı |
 | EM-2 | **Finansal model, fiyat, tedarik/kapasite** (IE) | Maliyet optimizasyonu, risk kaydı |
 | İŞ-1 | **İş geliştirme, GTM, okul/öğretmen ilişkileri, pitch, hukuk/danışman koordinasyonu** | Müşteri görüşmeleri, marka |
 
 > Rol dağılımı ekip üyelerinin ilgi ve güçlü yanlarına göre ekip toplantısında birlikte netleştirilmelidir (özellikle tasarım sistemi sahibi kim olacak?).
-> Tek Flutter kod tabanı tek kişiye yüklenirse darboğaz olur; BM-3 ile işi paylaşın.
+> Tek istemci kod tabanı tek kişiye yüklenirse darboğaz olur; BM-3 ile işi paylaşın.
 
 ### 14.2 RACI (özet)
 
@@ -1136,9 +1139,9 @@ Hedef göstergeler (girişimcilik sezgisi, ⚠️ doğrulayın): LTV/CAC ≥ 3, 
 | **M3** | Gizli çözüm + SymPy doğrulama | Sınıflandırma, çözüm üretimi, doğrulama | Golden set'te doğrulama oranı raporlanır |
 | **M4** | İpucu merdiveni + sızıntı kontrolü | L0–L4, escalation, kural + yargıç sızıntı kontrolü | Golden set'te L0–L3 sızıntı < %1 (hedef); regresyon testleri |
 | **M5** | Güvenlik katmanı | Girdi/çıktı moderasyonu, kriz akışı, injection seti | Adversarial setin ≥ %98'i atlatılamaz |
-| **M6** | Flutter çocuk modu (mobil + web) | Flutter akışı (mobil + web), yaş temaları, erişilebilirlik | Aynı akış hem mobil hem web e2e testinden geçer; kullanılabilirlik testi notları |
-| **M7** | Flutter ebeveyn modu + rapor + faturalama | Panel, haftalık rapor, abonelik, kota | Rapor doğruluğu testi, webhook idempotency |
-| **M8** | Flutter öğretmen modu + eval otomasyonu + yayın hazırlığı | Sınıf, ısı haritası, CI'da eval, gözlemlenebilirlik, güvenlik gözden geçirme | Eval CI'da, runbook'lar, pentest bulguları kapatılmış |
+| **M6** | Expo çocuk modu (mobil + web) | İstemci akışı (Expo, mobil + web), yaş temaları, erişilebilirlik | Aynı akış hem mobil hem web e2e testinden geçer; kullanılabilirlik testi notları |
+| **M7** | Expo ebeveyn modu + rapor + faturalama | Panel, haftalık rapor, abonelik, kota | Rapor doğruluğu testi, webhook idempotency |
+| **M8** | Expo öğretmen modu + eval otomasyonu + yayın hazırlığı | Sınıf, ısı haritası, CI'da eval, gözlemlenebilirlik, güvenlik gözden geçirme | Eval CI'da, runbook'lar, pentest bulguları kapatılmış |
 
 ### 15.3 Paralel iş akışları
 
@@ -1204,8 +1207,9 @@ Hedef göstergeler (girişimcilik sezgisi, ⚠️ doğrulayın): LTV/CAC ≥ 3, 
 | R13 | Veri ihlali | Düşük | Çok yüksek | Şifreleme, erişim kontrolü, minimizasyon, olay müdahale planı | BM-3 |
 | R14 | İntihal/akademik dürüstlük algısı (öğretmenler ürüne güvenmez) | Orta | Orta | Şeffaf rapor, "çözüm görüldü" bildirimi, öğretmen paneli | İŞ-1 |
 | R15 | Telif (içerik, görsel, marka) | Düşük | Orta | Kendi içerik/lisans, marka taraması | İŞ-1 |
-| R16 | Flutter web'de SEO, ilk yükleme ve ekran okuyucu zayıflığı | Orta | Orta | Landing ayrı site, Semantics testi | BM-2 |
-| R17 | Tek frontend geliştirici darboğazı (tek Flutter kod tabanı) | Orta | Orta | İş paylaşımı, ortak bileşen kütüphanesi | BM-2 |
+| R16 | Web'de erişilebilirlik ve ilk yükleme (D7-r ile azaltıldı: react-native-web DOM üretir) | Düşük | Orta | Landing ayrı site, erişilebilirlik etiketleri + ekran okuyucu testi, web bundle boyutu takibi | BM-2 |
+| R17 | Tek frontend geliştirici darboğazı (tek istemci kod tabanı) | Orta | Orta | İş paylaşımı, ortak bileşen kütüphanesi | BM-2 |
+| R18 | Ekibin React / TypeScript'e yeni olması (öğrenme eğrisi, M6 gecikmesi) | Orta | Orta | M1.5'te küçük iskeletle başla, kavramları Flutter karşılıklarıyla öğren, her istemci PR'ında kod incelemesi | BM-2 |
 
 ---
 
@@ -1290,7 +1294,7 @@ Hedef göstergeler (girişimcilik sezgisi, ⚠️ doğrulayın): LTV/CAC ≥ 3, 
 | D4 | "Çözümü göster" politikası | 3.4 | Hafta 3 | Ürün + pedagoji danışmanı |
 | D5 | LLM sağlayıcı(lar) | 3.5 | Hafta 3 | BM-1 |
 | D6 | Barındırma | 3.6 | Hafta 5 | BM-1 |
-| D7 | Mobil/Web yaklaşımı — Karar verildi: Flutter | 3.7 | Hafta 3 | BM-2 + BM-1 |
+| D7 | Mobil/Web yaklaşımı — Karar verildi: Expo / React Native (D7-r, 2026-10-26; ilk karar Flutter) | 3.7 | Hafta 3 | BM-2 + BM-1 |
 | D8 | Backend çatısı — Karar verildi: FastAPI | 7.5 | Hafta 3 | BM-1 |
 | D9 | Öğrenci modeli | 6.4 | Hafta 6 | BM-3 |
 | D10 | Foto/OCR MVP'de mi? | 5.3 | Hafta 5 | Ürün |
@@ -1402,7 +1406,7 @@ hint-ai/
 │  │  │  └─ main.py
 │  │  ├─ migrations/          # Alembic
 │  │  └─ tests/
-│  ├─ client/                # Flutter (iOS/Android/Web: çocuk / ebeveyn / öğretmen modları)
+│  ├─ client/                # Expo / React Native (iOS/Android/Web: çocuk / ebeveyn / öğretmen modları)
 │  ├─ landing/               # Statik landing site (ön kayıt, SEO)
 │  └─ worker/                # Arka plan işleri (raporlar, silme, bildirim)
 ├─ evals/
@@ -1436,7 +1440,7 @@ Hint.ai, 7–17 yaş öğrenciler için cevap yerine kademeli ipucu veren AI ö�
 7. Prompt değişikliği = yeni sürüm dosyası + eval çalıştırma + PR.
 
 ## Teknoloji
-Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL (+pgvector), Redis, pytest, ruff, mypy. Flutter (iOS/Android/Web, tek istemci). Next.js yok. Docker Compose (yerel).
+Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL (+pgvector), Redis, pytest, ruff, mypy. Expo / React Native + TypeScript (iOS/Android/Web, tek istemci). Next.js yok. Docker Compose (yerel).
 (Kararlar DECISIONS.md'de değişmişse oraya uy.)
 
 ## Komutlar
@@ -1445,8 +1449,8 @@ Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL (+pgvector), Redis, pyt
 - `make lint` — ruff + mypy
 - `make eval` — golden + adversarial + safety eval
 - `make migrate` — Alembic
-- `make client-gen` — OpenAPI'den Dart istemcisi üret (openapi-generator)
-- `make client-test` — `flutter test` + web build kontrolü
+- `make client-gen` — OpenAPI'den TypeScript istemcisi üret (openapi-typescript)
+- `make client-test` — `jest` + `tsc --noEmit` + web export kontrolü
 
 ## Kodlama standartları
 - Tip ipuçları zorunlu, modül sınırlarına saygı (modüller yalnızca birbirinin public arayüzünü çağırır).
