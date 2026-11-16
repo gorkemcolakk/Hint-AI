@@ -193,6 +193,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/problems": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Problem */
+        post: operations["submit_problem_v1_problems_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/healthz": {
         parameters: {
             query?: never;
@@ -331,6 +348,28 @@ export interface components {
              * Format: date-time
              */
             expires_at: string;
+        };
+        /** ProblemCreateRequest */
+        ProblemCreateRequest: {
+            /** Text */
+            text: string;
+        };
+        /**
+         * ProblemResponse
+         * @description Öğrenciye dönen bilgi. Gizli çözüm, adımlar ve nihai cevap bilerek yoktur.
+         */
+        ProblemResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Grade */
+            grade: number | null;
+            /** Topic */
+            topic: string | null;
         };
         /** RefreshRequest */
         RefreshRequest: {
@@ -765,6 +804,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PairingCodeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_problem_v1_problems_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProblemCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProblemResponse"];
                 };
             };
             /** @description Validation Error */

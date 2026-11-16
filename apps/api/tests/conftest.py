@@ -8,11 +8,21 @@ from sqlalchemy import make_url, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 import app.modules.llm_gateway.models  # noqa: F401
+import app.modules.problems.models  # noqa: F401
 from app.modules.auth_consent.models import Base
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 
-_TABLES = ("llm_calls", "pairing_codes", "consents", "refresh_tokens", "child_profiles", "users")
+_TABLES = (
+    "problems",
+    "hidden_solutions",
+    "llm_calls",
+    "pairing_codes",
+    "consents",
+    "refresh_tokens",
+    "child_profiles",
+    "users",
+)
 
 _database_ready = False
 

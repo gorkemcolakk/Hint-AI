@@ -12,4 +12,6 @@
 - Expo yönetilen iş akışı (CNG) kullanılır; `ios/` ve `android/` klasörleri gerekmedikçe repoya girmez. Analitik/izleme SDK'sı (ör. Sentry, Firebase Analytics) eklenmez (Kural 5).
 - Geliştirmede API adresi: `EXPO_PUBLIC_API_URL` verilmezse web'de `http://localhost:8000`, Expo Go'da Metro'yu çalıştıran makinenin adresi + `:8000` kullanılır; telefon ile bilgisayar aynı ağda olmalı.
 - Eşleştirme bağlantısı (`/pair?child=…&code=…`) kodu URL'de taşır; kod tek kullanımlık ve 10 dk geçerli olduğu için kabul edildi (tarayıcı geçmişinde kalabilir).
+- Golden set v1 (60 soru, 5–8. sınıf) sentetiktir ve öğretmen onayından geçmemiştir; Bölüm 11.2 gereği öğretmenlerle gözden geçirilip 200+ soruya genişletilmelidir.
+- `POST /v1/problems` oturum (session) yapısı olmadan çalışır; oturumlar ve ipucu akışı M4/M6'da eklenir.
 - Uygulama ikonları şimdilik Expo şablonundan; Hint.ai ikonu marka adı doğrulamasından (D14) sonra eklenir.

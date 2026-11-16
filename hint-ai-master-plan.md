@@ -832,6 +832,7 @@ REST + SSE (ipucu akışı). Tüm uçlar `/v1/` altında. Kimlik doğrulama: Bea
 | | `GET /children/{id}/export`, `DELETE /children/{id}` | Veri taşıma/silme |
 | Tutoring | `POST /sessions` | Oturum başlat |
 | | `POST /sessions/{id}/problems` | Soru gönder (metin veya görsel) |
+| | `POST /problems` | M3: soru gönder; gizli çözüm hazırlanır, yanıtta yalnızca durum/konu döner (oturumlar M6'da) |
 | | `POST /problems/{id}/hints` (SSE) | Sonraki ipucunu iste |
 | | `POST /problems/{id}/attempts` | Öğrenci cevabı gönder |
 | | `POST /problems/{id}/reveal-solution` | Politika izin veriyorsa |
@@ -1303,10 +1304,10 @@ Hedef göstergeler (girişimcilik sezgisi, ⚠️ doğrulayın): LTV/CAC ≥ 3, 
 | # | Karar | Seçenekler (Bölüm) | Son tarih | Karar sahibi |
 |---|---|---|---|---|
 | D1 | Hedef segment (yaş, ders, ödeyici) | 3.1 | Hafta 1–2 | Tüm ekip |
-| D2 | İlk ders | 3.2 | Hafta 1–2 | BM-1 + İŞ-1 |
+| D2 | İlk ders — Karar verildi: Matematik, tüm sınıflar; ölçüm 5–8. sınıftan başlar | 3.2 | Hafta 1–2 | BM-1 + İŞ-1 |
 | D3 | Fiyat modeli ve fiyat noktası | 3.3 + keşif | Hafta 4–5 | EM-2 + İŞ-1 |
 | D4 | "Çözümü göster" politikası | 3.4 | Hafta 3 | Ürün + pedagoji danışmanı |
-| D5 | LLM sağlayıcı(lar) | 3.5 | Hafta 3 | BM-1 |
+| D5 | LLM sağlayıcı(lar) — Karar verildi: Gemini (gateway üzerinden, değiştirilebilir) | 3.5 | Hafta 3 | BM-1 |
 | D6 | Barındırma | 3.6 | Hafta 5 | BM-1 |
 | D7 | Mobil/Web yaklaşımı — Karar verildi: Expo / React Native (D7-r, 2026-10-26; ilk karar Flutter) | 3.7 | Hafta 3 | BM-2 + BM-1 |
 | D8 | Backend çatısı — Karar verildi: FastAPI | 7.5 | Hafta 3 | BM-1 |

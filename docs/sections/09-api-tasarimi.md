@@ -18,6 +18,7 @@ REST + SSE (ipucu akışı). Tüm uçlar `/v1/` altında. Kimlik doğrulama: Bea
 | | `GET /children/{id}/export`, `DELETE /children/{id}` | Veri taşıma/silme |
 | Tutoring | `POST /sessions` | Oturum başlat |
 | | `POST /sessions/{id}/problems` | Soru gönder (metin veya görsel) |
+| | `POST /problems` | M3: soru gönder; gizli çözüm hazırlanır, yanıtta yalnızca durum/konu döner (oturumlar M6'da) |
 | | `POST /problems/{id}/hints` (SSE) | Sonraki ipucunu iste |
 | | `POST /problems/{id}/attempts` | Öğrenci cevabı gönder |
 | | `POST /problems/{id}/reveal-solution` | Politika izin veriyorsa |

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.health import check_database, check_redis
 from app.modules.auth_consent.router import auth_router, children_router
+from app.modules.problems.router import problems_router
 
 app = FastAPI(title=settings.service_name, version="0.1.0")
 
@@ -17,6 +18,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(children_router)
+app.include_router(problems_router)
 
 
 @app.get("/healthz")

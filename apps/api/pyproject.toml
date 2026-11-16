@@ -20,6 +20,7 @@ dependencies = [
     "PyJWT>=2.8",
     "email-validator>=2.1",
     "httpx>=0.27",
+    "sympy>=1.13",
 ]
 
 [project.optional-dependencies]
@@ -27,6 +28,7 @@ dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "httpx>=0.27",
+    "sympy>=1.13",
     "ruff>=0.6",
     "mypy>=1.11",
 ]
@@ -34,6 +36,9 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["prompts/*.md"]
 
 [tool.ruff]
 line-length = 100
@@ -48,7 +53,7 @@ strict = true
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["redis", "redis.asyncio", "jwt", "argon2"]
+module = ["redis", "redis.asyncio", "jwt", "argon2", "sympy", "sympy.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

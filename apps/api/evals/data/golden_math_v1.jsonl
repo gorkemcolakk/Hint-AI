@@ -1,0 +1,60 @@
+{"id": 1, "grade": 5, "topic": "kesirlerle toplama", "text": "3/4 + 1/8 kaç eder?", "answer": "7/8", "sympy_check": {"type": "evaluate", "expression": "3/4 + 1/8"}}
+{"id": 2, "grade": 5, "topic": "kesirlerle çarpma", "text": "2/3 ile 3/5'i çarpınca ne bulunur?", "answer": "2/5", "sympy_check": {"type": "evaluate", "expression": "2/3 * 3/5"}}
+{"id": 3, "grade": 5, "topic": "ondalık gösterim", "text": "4,5 ile 2,25'in toplamı kaçtır?", "answer": "6.75", "sympy_check": {"type": "evaluate", "expression": "4.5 + 2.25"}}
+{"id": 4, "grade": 5, "topic": "bir çokluğun kesir kadarı", "text": "Bir sınıfta 24 öğrencinin 3/8'i kızdır. Kaç kız öğrenci vardır?", "answer": "9", "sympy_check": {"type": "evaluate", "expression": "24 * 3/8"}}
+{"id": 5, "grade": 5, "topic": "yüzdeler", "text": "1250 sayısının yüzde 20'si kaçtır?", "answer": "250", "sympy_check": {"type": "evaluate", "expression": "1250 * 20/100"}}
+{"id": 6, "grade": 5, "topic": "dikdörtgenin çevresi", "text": "Bir dikdörtgenin kısa kenarı 7 cm, uzun kenarı 12 cm'dir. Çevresi kaç cm'dir?", "answer": "38", "sympy_check": {"type": "evaluate", "expression": "2*(7 + 12)"}}
+{"id": 7, "grade": 5, "topic": "karenin alanı", "text": "Kenar uzunluğu 9 cm olan karenin alanı kaç cm²'dir?", "answer": "81", "sympy_check": {"type": "evaluate", "expression": "9^2"}}
+{"id": 8, "grade": 5, "topic": "çarpma işlemi", "text": "345 ile 27'nin çarpımı kaçtır?", "answer": "9315", "sympy_check": {"type": "evaluate", "expression": "345 * 27"}}
+{"id": 9, "grade": 5, "topic": "tam sayılı kesirlerle çıkarma", "text": "5 tam 1/2'den 2 tam 3/4 çıkarılırsa sonuç kaçtır?", "answer": "11/4", "sympy_check": {"type": "evaluate", "expression": "(5 + 1/2) - (2 + 3/4)"}}
+{"id": 10, "grade": 5, "topic": "ondalık gösterim", "text": "0,6 sayısını en sade kesir olarak yazınız.", "answer": "3/5", "sympy_check": {"type": "evaluate", "expression": "6/10"}}
+{"id": 11, "grade": 5, "topic": "kesir problemleri", "text": "Bir kitap 180 sayfadır. Ayşe kitabın 2/5'ini okudu. Okumadığı kaç sayfa kaldı?", "answer": "108", "sympy_check": {"type": "evaluate", "expression": "180 - 180 * 2/5"}}
+{"id": 12, "grade": 5, "topic": "işlem önceliği", "text": "7 x 8 + 36 / 4 işleminin sonucu kaçtır?", "answer": "65", "sympy_check": {"type": "evaluate", "expression": "7*8 + 36/4"}}
+{"id": 13, "grade": 5, "topic": "toplama ve çıkarma problemleri", "text": "Bir otobüste 46 yolcu vardı. İlk durakta 13 kişi indi, 8 kişi bindi. Otobüste kaç yolcu oldu?", "answer": "41", "sympy_check": {"type": "evaluate", "expression": "46 - 13 + 8"}}
+{"id": 14, "grade": 5, "topic": "ardışık sayılar", "text": "Üç ardışık doğal sayının toplamı 48'dir. En küçük sayı kaçtır?", "answer": "15", "sympy_check": {"type": "solve", "equation": "n + (n + 1) + (n + 2) = 48", "variable": "n"}}
+{"id": 15, "grade": 6, "topic": "EBOB", "text": "12 ve 18'in EBOB'u kaçtır?", "answer": "6", "sympy_check": {"type": "evaluate", "expression": "gcd(12, 18)"}}
+{"id": 16, "grade": 6, "topic": "EKOK", "text": "8 ve 12'nin EKOK'u kaçtır?", "answer": "24", "sympy_check": {"type": "evaluate", "expression": "lcm(8, 12)"}}
+{"id": 17, "grade": 6, "topic": "üslü ifadeler", "text": "2 üssü 5 kaçtır?", "answer": "32", "sympy_check": {"type": "evaluate", "expression": "2^5"}}
+{"id": 18, "grade": 6, "topic": "tam sayılarla işlemler", "text": "(-7) + 12 - (-5) işleminin sonucu kaçtır?", "answer": "10", "sympy_check": {"type": "evaluate", "expression": "(-7) + 12 - (-5)"}}
+{"id": 19, "grade": 6, "topic": "tam sayılarla çarpma", "text": "-3 ile -4'ün çarpımı kaçtır?", "answer": "12", "sympy_check": {"type": "evaluate", "expression": "(-3)*(-4)"}}
+{"id": 20, "grade": 6, "topic": "yüzdeler", "text": "3/5 kesrinin yüzde karşılığı kaçtır?", "answer": "60", "sympy_check": {"type": "evaluate", "expression": "3/5 * 100"}}
+{"id": 21, "grade": 6, "topic": "indirim problemleri", "text": "Fiyatı 80 TL olan bir ürüne %25 indirim yapılıyor. Yeni fiyat kaç TL olur?", "answer": "60", "sympy_check": {"type": "evaluate", "expression": "80 - 80 * 25/100"}}
+{"id": 22, "grade": 6, "topic": "üçgenin iç açıları", "text": "Bir üçgenin iki iç açısı 65° ve 45°'dir. Üçüncü açı kaç derecedir?", "answer": "70", "sympy_check": {"type": "evaluate", "expression": "180 - 65 - 45"}}
+{"id": 23, "grade": 6, "topic": "üçgenin alanı", "text": "Taban uzunluğu 10 cm, yüksekliği 6 cm olan üçgenin alanı kaç cm²'dir?", "answer": "30", "sympy_check": {"type": "evaluate", "expression": "10 * 6 / 2"}}
+{"id": 24, "grade": 6, "topic": "denklem", "text": "x + 17 = 42 ise x kaçtır?", "answer": "25", "sympy_check": {"type": "solve", "equation": "x + 17 = 42", "variable": "x"}}
+{"id": 25, "grade": 6, "topic": "denklem", "text": "4a = 36 ise a kaçtır?", "answer": "9", "sympy_check": {"type": "solve", "equation": "4*a = 36", "variable": "a"}}
+{"id": 26, "grade": 6, "topic": "denklem kurma", "text": "Bir sayının 3 katının 5 fazlası 29'dur. Bu sayı kaçtır?", "answer": "8", "sympy_check": {"type": "solve", "equation": "3*x + 5 = 29", "variable": "x"}}
+{"id": 27, "grade": 6, "topic": "ondalık çarpma", "text": "1,2 ile 0,5'in çarpımı kaçtır?", "answer": "0.6", "sympy_check": {"type": "evaluate", "expression": "1.2 * 0.5"}}
+{"id": 28, "grade": 6, "topic": "karekök", "text": "36'nın karekökü kaçtır?", "answer": "6", "sympy_check": {"type": "evaluate", "expression": "sqrt(36)"}}
+{"id": 29, "grade": 6, "topic": "doğru orantı", "text": "Bir araç 3 saatte 240 km yol alıyor. Aynı hızla 5 saatte kaç km yol alır?", "answer": "400", "sympy_check": {"type": "evaluate", "expression": "240/3 * 5"}}
+{"id": 30, "grade": 6, "topic": "doğru orantı", "text": "15 kalemin fiyatı 45 TL ise 7 kalemin fiyatı kaç TL'dir?", "answer": "21", "sympy_check": {"type": "evaluate", "expression": "45/15 * 7"}}
+{"id": 31, "grade": 7, "topic": "birinci dereceden denklem", "text": "2x - 7 = 11 denkleminde x kaçtır?", "answer": "9", "sympy_check": {"type": "solve", "equation": "2*x - 7 = 11", "variable": "x"}}
+{"id": 32, "grade": 7, "topic": "parantezli denklem", "text": "3(x + 4) = 27 ise x kaçtır?", "answer": "5", "sympy_check": {"type": "solve", "equation": "3*(x + 4) = 27", "variable": "x"}}
+{"id": 33, "grade": 7, "topic": "birinci dereceden denklem", "text": "5x + 3 = 2x + 18 ise x kaçtır?", "answer": "5", "sympy_check": {"type": "solve", "equation": "5*x + 3 = 2*x + 18", "variable": "x"}}
+{"id": 34, "grade": 7, "topic": "kesirli denklem", "text": "x/4 + 2 = 7 ise x kaçtır?", "answer": "20", "sympy_check": {"type": "solve", "equation": "x/4 + 2 = 7", "variable": "x"}}
+{"id": 35, "grade": 7, "topic": "kesir problemleri", "text": "Bir sayının 2/3'ü 18 ise bu sayı kaçtır?", "answer": "27", "sympy_check": {"type": "solve", "equation": "2/3 * x = 18", "variable": "x"}}
+{"id": 36, "grade": 7, "topic": "oran", "text": "Oranları 3'e 5 olan iki sayının toplamı 64'tür. Büyük sayı kaçtır?", "answer": "40", "sympy_check": {"type": "evaluate", "expression": "64 * 5/8"}}
+{"id": 37, "grade": 7, "topic": "dairenin alanı", "text": "Yarıçapı 7 cm olan dairenin alanı kaç cm²'dir? (π yerine 22/7 alınız)", "answer": "154", "sympy_check": {"type": "evaluate", "expression": "22/7 * 7^2"}}
+{"id": 38, "grade": 7, "topic": "çemberin çevresi", "text": "Yarıçapı 5 cm olan çemberin çevresi kaç cm'dir? (π yerine 3 alınız)", "answer": "30", "sympy_check": {"type": "evaluate", "expression": "2 * 3 * 5"}}
+{"id": 39, "grade": 7, "topic": "yüzde problemleri", "text": "Bir malın fiyatı %20 zamla 360 TL oldu. Zamdan önceki fiyatı kaç TL'dir?", "answer": "300", "sympy_check": {"type": "solve", "equation": "x * 120/100 = 360", "variable": "x"}}
+{"id": 40, "grade": 7, "topic": "açılar", "text": "Bir dik açının üçte biri kaç derecedir?", "answer": "30", "sympy_check": {"type": "evaluate", "expression": "90/3"}}
+{"id": 41, "grade": 7, "topic": "ardışık çift sayılar", "text": "Ardışık iki çift sayının toplamı 46'dır. Küçük sayı kaçtır?", "answer": "22", "sympy_check": {"type": "solve", "equation": "x + (x + 2) = 46", "variable": "x"}}
+{"id": 42, "grade": 7, "topic": "tam sayıların kuvvetleri", "text": "(-2)³ işleminin sonucu kaçtır?", "answer": "-8", "sympy_check": {"type": "evaluate", "expression": "(-2)^3"}}
+{"id": 43, "grade": 7, "topic": "denklem kurma", "text": "Bir dikdörtgenin uzun kenarı kısa kenarının 3 katıdır. Çevresi 48 cm ise kısa kenar kaç cm'dir?", "answer": "6", "sympy_check": {"type": "solve", "equation": "2*(x + 3*x) = 48", "variable": "x"}}
+{"id": 44, "grade": 7, "topic": "yaş problemleri", "text": "Ali'nin yaşı Veli'nin yaşının 2 katıdır. Yaşları toplamı 36 ise Veli kaç yaşındadır?", "answer": "12", "sympy_check": {"type": "solve", "equation": "x + 2*x = 36", "variable": "x"}}
+{"id": 45, "grade": 7, "topic": "yüzdeler", "text": "0,25 sayısının yüzde karşılığı kaçtır?", "answer": "25", "sympy_check": {"type": "evaluate", "expression": "0.25 * 100"}}
+{"id": 46, "grade": 8, "topic": "üslü ifadeler", "text": "2³ · 2⁴ işleminin sonucu 2'nin kaçıncı kuvvetidir?", "answer": "7", "sympy_check": {"type": "evaluate", "expression": "3 + 4"}}
+{"id": 47, "grade": 8, "topic": "kareköklü ifadeler", "text": "√48 ifadesini en sade hâliyle yazınız.", "answer": "4*sqrt(3)", "sympy_check": {"type": "evaluate", "expression": "sqrt(48)"}}
+{"id": 48, "grade": 8, "topic": "kareköklü ifadelerle toplama", "text": "√50 + √18 işleminin sonucu kaçtır?", "answer": "8*sqrt(2)", "sympy_check": {"type": "evaluate", "expression": "sqrt(50) + sqrt(18)"}}
+{"id": 49, "grade": 8, "topic": "ikinci dereceden denklem", "text": "x² = 49 denkleminin çözümleri nelerdir?", "answer": "7; -7", "sympy_check": {"type": "solve", "equation": "x^2 = 49", "variable": "x"}}
+{"id": 50, "grade": 8, "topic": "doğrusal denklemler", "text": "2x + 3y = 12 doğrusunun y eksenini kestiği noktanın y değeri kaçtır?", "answer": "4", "sympy_check": {"type": "solve", "equation": "3*y = 12", "variable": "y"}}
+{"id": 51, "grade": 8, "topic": "Pisagor bağıntısı", "text": "Dik kenarları 6 cm ve 8 cm olan dik üçgenin hipotenüsü kaç cm'dir?", "answer": "10", "sympy_check": {"type": "evaluate", "expression": "sqrt(6^2 + 8^2)"}}
+{"id": 52, "grade": 8, "topic": "özdeşlikler", "text": "(x + 3)(x - 3) ifadesinin açılımında sabit terim kaçtır?", "answer": "-9", "sympy_check": {"type": "evaluate", "expression": "3 * (-3)"}}
+{"id": 53, "grade": 8, "topic": "üslü ifadeler", "text": "5⁰ + 3¹ işleminin sonucu kaçtır?", "answer": "4", "sympy_check": {"type": "evaluate", "expression": "5^0 + 3^1"}}
+{"id": 54, "grade": 8, "topic": "bilimsel gösterim", "text": "3,2 × 10⁴ sayısı kaçtır?", "answer": "32000", "sympy_check": {"type": "evaluate", "expression": "3.2 * 10^4"}}
+{"id": 55, "grade": 8, "topic": "olasılık", "text": "Bir zar atıldığında asal sayı gelme olasılığı kaçtır?", "answer": "1/2", "sympy_check": {"type": "evaluate", "expression": "3/6"}}
+{"id": 56, "grade": 8, "topic": "olasılık", "text": "Bir torbada 4 kırmızı ve 6 mavi top var. Rastgele çekilen topun kırmızı olma olasılığı kaçtır?", "answer": "2/5", "sympy_check": {"type": "evaluate", "expression": "4/10"}}
+{"id": 57, "grade": 8, "topic": "eşitsizlikler", "text": "2x - 5 > 7 eşitsizliğini sağlayan en küçük tam sayı kaçtır?", "answer": "7", "sympy_check": null, "expect_status": "unverifiable"}
+{"id": 58, "grade": 8, "topic": "doğru denklemi", "text": "Eğimi 2 olan ve (0, 3) noktasından geçen doğrunun x = 4 için y değeri kaçtır?", "answer": "11", "sympy_check": {"type": "evaluate", "expression": "2*4 + 3"}}
+{"id": 59, "grade": 8, "topic": "cebirsel ifadeler", "text": "a = 3 ve b = -2 için a² - 2ab ifadesinin değeri kaçtır?", "answer": "21", "sympy_check": {"type": "evaluate", "expression": "3^2 - 2*3*(-2)"}}
+{"id": 60, "grade": 8, "topic": "küpün hacmi", "text": "Bir ayrıtı 4 cm olan küpün hacmi kaç cm³'tür?", "answer": "64", "sympy_check": {"type": "evaluate", "expression": "4^3"}}

@@ -34,3 +34,10 @@
 | M2.1-4 | LLM_PROVIDER | Yalnızca mock/http/gemini/openai; başka değer uygulama açılırken hata verir (sessizce mock'a düşmez) | 2026-11-16 | BM-1 |
 | M2.1-5 | Eşleştirme kodu | `pairing_codes.code_hash` UNIQUE kısıtı kaldırıldı (migration 0004); kod child_id ile aranır | 2026-11-16 | BM-1 |
 | M2.1-6 | Test veritabanı | Testler adı `_test` ile biten ayrı veritabanında çalışır (yoksa oluşturulur); geliştirme veritabanı gösterilirse testler durur | 2026-11-16 | BM-1 |
+| D2 | İlk ders | Matematik; tüm sınıflar (7–17 yaş) kullanabilir. Golden set, prompt ayarı ve demo önce 5–8. sınıftan başlar, sonra genişler | 2026-11-16 | BM-1 + İŞ-1 |
+| D5 | LLM sağlayıcı | Gemini, gateway üzerinden (tek yerden değiştirilebilir). Geliştirmede ücretsiz katman yalnızca sentetik veriyle; gerçek çocuk verisinden önce eğitimde kullanılmayan ücretli katman | 2026-11-16 | BM-1 |
+| M3-1 | Sınıflandırma + çözüm | Maliyet için tek LLM çağrısında: sınıf, konu, adımlar, nihai cevap ve SymPy kontrolü JSON olarak (`app/prompts/solve_v1.md`) | 2026-11-16 | BM-1 |
+| M3-2 | Doğrulama politikası | SymPy ile çelişen çözüm bir kez yeniden üretilir; yine çelişirse `low_confidence`. SymPy kontrolü olmayan soru `unverifiable`, geçerli JSON gelmezse `failed` | 2026-11-16 | BM-1 |
+| M3-3 | SymPy güvenliği | LLM ifadeleri yalnızca izinli karakter/isimlerle, uzunluk ve üs sınırıyla ayrıştırılır (`parse_expr` eval kullandığı için) | 2026-11-16 | BM-1 |
+| M3-4 | Çözüm önbelleği | Normalleştirilmiş maskeli soru hash'i → yalnızca doğrulanmış çözümler yeniden kullanılır; önbellek öğrenci verisi içermez | 2026-11-16 | BM-1 |
+| M3-5 | Soru saklama | Soru metni yalnızca PII maskelenmiş haliyle `problems` tablosunda; gizli çözüm ayrı tabloda ve API yanıtlarında yok | 2026-11-16 | BM-1 |
