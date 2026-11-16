@@ -1,6 +1,6 @@
 # Karar Günlüğü
 
-> Kaynak: docs/master-plan.md Bölüm 20. Yeni kararlar buraya eklenir.
+> Kaynak: hint-ai-master-plan.md Bölüm 20. Yeni kararlar buraya eklenir.
 
 | # | Karar | Sonuç | Tarih | Karar sahibi |
 |---|---|---|---|---|
@@ -28,3 +28,9 @@
 | M1.5-6 | API sözleşmesi | `apps/client/openapi.json` ve üretilen tipler repoda; CI, şemanın ve tiplerin koddan sapmadığını kontrol eder | 2026-10-26 | BM-1 + BM-2 |
 | M1.5-7 | Oturuma göre yönlendirme | Erişim kuralları kök layout'ta `Stack.Protected` ile tek yerde; koruması kalkan ekranlar gezinme geçmişinden silinir | 2026-10-26 | BM-2 |
 | M1.5-8 | İstemci sürümleri (D7-r1 kesinleşti) | Expo SDK 58 · React 19.3 · RN 0.88 · TypeScript 6.0 · TanStack Query 5 · openapi-fetch 0.17 · openapi-typescript 7.13 (TS 6 için `overrides`) · Jest 30 + jest-expo + RNTL 14 · ESLint 9. E2e araçları (Playwright, Maestro) M6'ya kaldı | 2026-10-26 | BM-2 |
+| M2.1-1 | Gateway rıza kontrolü | Fail-closed: `child_id` + `db` olmadan yalnızca çocuk verisi içermeyen amaçlar (`eval`) çağrılabilir; aksi halde `ChildContextRequiredError` | 2026-11-16 | BM-1 |
+| M2.1-2 | System prompt | Uygulamanın kendi metni `TrustedText` tipindedir, maskelenmez ve yalnızca system rolünde kabul edilir; kullanıcı metni her zaman `MaskedText` | 2026-11-16 | BM-1 |
+| M2.1-3 | İsim maskeleme | "ismim" / "benim adım" her zaman isim; tek başına "adım" yalnızca büyük harfli kelimeden önce ya da cümle başında, adım bağlamı kelimesi gelmiyorsa isim. Ad + en fazla iki kelime maskelenir | 2026-11-16 | BM-1 |
+| M2.1-4 | LLM_PROVIDER | Yalnızca mock/http/gemini/openai; başka değer uygulama açılırken hata verir (sessizce mock'a düşmez) | 2026-11-16 | BM-1 |
+| M2.1-5 | Eşleştirme kodu | `pairing_codes.code_hash` UNIQUE kısıtı kaldırıldı (migration 0004); kod child_id ile aranır | 2026-11-16 | BM-1 |
+| M2.1-6 | Test veritabanı | Testler adı `_test` ile biten ayrı veritabanında çalışır (yoksa oluşturulur); geliştirme veritabanı gösterilirse testler durur | 2026-11-16 | BM-1 |

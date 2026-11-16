@@ -4,7 +4,7 @@ from collections.abc import AsyncIterator
 import httpx
 import pytest
 import pytest_asyncio
-from sqlalchemy import text
+from sqlalchemy import make_url, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 import app.modules.llm_gateway.models  # noqa: F401
@@ -14,11 +14,37 @@ TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 
 _TABLES = ("llm_calls", "pairing_codes", "consents", "refresh_tokens", "child_profiles", "users")
 
+_database_ready = False
+
+
+async def _ensure_test_database(url: str) -> None:
+    """Test veritabanı yoksa oluşturur. Testler tabloları boşalttığı için adı _test ile bitmeli."""
+    global _database_ready
+    if _database_ready:
+        return
+    target = make_url(url)
+    name = target.database or ""
+    if not name.endswith("_test"):
+        pytest.fail(
+            f"TEST_DATABASE_URL '{name}' veritabanını gösteriyor; testler tabloları boşalttığı "
+            "için adı _test ile biten ayrı bir veritabanı kullanın (ör. hint_test)."
+        )
+    admin = create_async_engine(target.set(database="postgres"), isolation_level="AUTOCOMMIT")
+    async with admin.connect() as conn:
+        exists = await conn.scalar(
+            text("SELECT 1 FROM pg_database WHERE datname = :name"), {"name": name}
+        )
+        if not exists:
+            await conn.execute(text(f'CREATE DATABASE "{name}"'))
+    await admin.dispose()
+    _database_ready = True
+
 
 @pytest_asyncio.fixture
 async def db_session() -> AsyncIterator[AsyncSession]:
     if not TEST_DATABASE_URL:
         pytest.skip("TEST_DATABASE_URL tanımlı değil; DB entegrasyon testi atlandı")
+    await _ensure_test_database(TEST_DATABASE_URL)
     engine = create_async_engine(TEST_DATABASE_URL)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

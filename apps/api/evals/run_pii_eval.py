@@ -2,7 +2,8 @@
 
 apps/api/evals/data/pii_eval_cases.jsonl veri setindeki girdileri
 maskeleme ve Mock sağlayıcı üzerinden geçirir; sağlayıcıya hiçbir ham
-PII verisinin sızmadığını doğrular (Hedef: Sızan PII sayısı = 0).
+PII verisinin sızmadığını (raw_pii) ve PII olmayan metnin bozulmadığını
+(must_keep, yanlış pozitif) doğrular. Hedef: ikisi de 0.
 """
 
 import asyncio
@@ -35,11 +36,13 @@ async def run_pii_eval(data_path: Path | None = None) -> dict[str, Any]:
 
     total_cases = len(cases)
     leaked_pii_count = 0
+    false_positive_count = 0
     all_detected_types: set[str] = set()
 
     for idx, case in enumerate(cases):
         raw_input = case["input"]
         raw_pii_list = case.get("raw_pii", [])
+        must_keep_list = case.get("must_keep", [])
 
         # Gateway üzerinden çağrı yap
         result = await service.complete(
@@ -61,12 +64,19 @@ async def run_pii_eval(data_path: Path | None = None) -> dict[str, Any]:
                 leaked_pii_count += 1
                 print(f"[UYARI] Sızıntı tespit edildi! ID={case['id']}, Değer={pii}")
 
-    passed = leaked_pii_count == 0
+        # PII olmayan metin (soru, ipucu) bozulmadan ulaştı mı?
+        for keep in must_keep_list:
+            if keep not in sent_content:
+                false_positive_count += 1
+                print(f"[UYARI] Yanlış pozitif! ID={case['id']}, Bozulan metin={keep}")
+
+    passed = leaked_pii_count == 0 and false_positive_count == 0
     leak_rate = (leaked_pii_count / total_cases) * 100 if total_cases > 0 else 0.0
 
     report = {
         "total_cases": total_cases,
         "leaked_pii_count": leaked_pii_count,
+        "false_positive_count": false_positive_count,
         "leak_rate_percent": leak_rate,
         "detected_types": sorted(all_detected_types),
         "passed": passed,
@@ -80,6 +90,7 @@ async def run_pii_eval(data_path: Path | None = None) -> dict[str, Any]:
     print(f" Tespit Edilen Türler  : {', '.join(sorted(all_detected_types))}")
     print(f" Sızan PII Sayısı      : {leaked_pii_count} (Hedef: 0)")
     print(f" Sızıntı Oranı         : %{leak_rate:.1f}")
+    print(f" Yanlış Pozitif        : {false_positive_count} (Hedef: 0)")
     print(f" Değerlendirme         : {'GEÇTİ (PASS)' if passed else 'BAŞARISIZ (FAIL)'}")
     print("=" * 50 + "\n")
 

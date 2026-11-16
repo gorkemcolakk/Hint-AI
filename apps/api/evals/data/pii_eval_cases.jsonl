@@ -1,4 +1,31 @@
-{"id": 1, "input": "Benim adım Zeynep Demir, telefonum 0532 987 65 43. 15 ile 20'nin EBOB'u kaçtır?", "raw_pii": ["Zeynep Demir", "0532 987 65 43"], "expected_types": ["ISIM", "TELEFON"]}
-{"id": 2, "input": "Kadıköy Anadolu Lisesi öğrencisiyim. T.C. kimliğim 10000000146. Bu geometri sorusunu çözemedim.", "raw_pii": ["Kadıköy Anadolu Lisesi", "10000000146"], "expected_types": ["OKUL", "TCKN"]}
-{"id": 3, "input": "Bana velimden veli.veli@ornek.com adresine ya da IBAN: TR42 0006 1000 0000 0012 3456 78 ile ödeme yap dedi.", "raw_pii": ["veli.veli@ornek.com", "TR42 0006 1000 0000 0012 3456 78"], "expected_types": ["E-POSTA", "IBAN"]}
-{"id": 4, "input": "Adım Mehmet Can. Bana Memo derler. 45 / 5 kaç eder?", "raw_pii": ["Mehmet Can", "Memo"], "expected_types": ["ISIM"]}
+{"id": 1, "input": "Benim adım Zeynep Demir, telefonum 0532 987 65 43. 15 ile 20'nin EBOB'u kaçtır?", "raw_pii": ["Zeynep Demir", "0532 987 65 43"], "must_keep": ["15 ile 20'nin EBOB'u kaçtır?"]}
+{"id": 2, "input": "Kadıköy Anadolu Lisesi öğrencisiyim. T.C. kimliğim 10000000146. Bu geometri sorusunu çözemedim.", "raw_pii": ["Kadıköy Anadolu Lisesi", "10000000146"], "must_keep": ["Bu geometri sorusunu çözemedim."]}
+{"id": 3, "input": "Bana velimden veli.veli@ornek.com adresine ya da IBAN: TR42 0006 1000 0000 0012 3456 78 ile ödeme yap dedi.", "raw_pii": ["veli.veli@ornek.com", "TR42 0006 1000 0000 0012 3456 78"], "must_keep": []}
+{"id": 4, "input": "Adım Mehmet Can. Bana Memo derler. 45 / 5 kaç eder?", "raw_pii": ["Mehmet Can", "Memo"], "must_keep": ["45 / 5 kaç eder?"]}
+{"id": 5, "input": "adım ayşe, kesirleri anlamadım", "raw_pii": ["ayşe"], "must_keep": ["kesirleri anlamadım"]}
+{"id": 6, "input": "İsmim Elif Yılmaz. 3/4 + 1/8 kaç eder?", "raw_pii": ["Elif", "Yılmaz"], "must_keep": ["3/4 + 1/8 kaç eder?"]}
+{"id": 7, "input": "Annemin numarası 0 555 123 45 67, ona da sorabilir miyim?", "raw_pii": ["555 123 45 67"], "must_keep": ["ona da sorabilir miyim?"]}
+{"id": 8, "input": "Telefonum +905051234567, bu denklemi çözer misin?", "raw_pii": ["5051234567"], "must_keep": ["bu denklemi çözer misin?"]}
+{"id": 9, "input": "Ödevi ogretmen.ali@okul.k12.tr adresine yollamam lazım.", "raw_pii": ["ogretmen.ali@okul.k12.tr"], "must_keep": ["adresine yollamam lazım."]}
+{"id": 10, "input": "Kimlik numaram 10000000146, sınav sonucuma bakar mısın?", "raw_pii": ["10000000146"], "must_keep": ["sınav sonucuma bakar mısın?"]}
+{"id": 11, "input": "Bağcılar Ortaokulu 6-B sınıfındayım, oran orantı sorusu var.", "raw_pii": ["Bağcılar"], "must_keep": ["oran orantı sorusu var."]}
+{"id": 12, "input": "Ben Ankara Fen Lisesi öğrencisiyim, türev sorusu var.", "raw_pii": ["Ankara"], "must_keep": ["türev sorusu var."]}
+{"id": 13, "input": "Bana Duru derler. Problemi çözemedim.", "raw_pii": ["Duru"], "must_keep": ["Problemi çözemedim."]}
+{"id": 14, "input": "Merhaba! Adım Kerem Can Aydın, 8. sınıftayım.", "raw_pii": ["Kerem", "Can Aydın", "Aydın"], "must_keep": ["8. sınıftayım."]}
+{"id": 15, "input": "Babamın hesabı TR42 0006 1000 0000 0012 3456 78, kitap parası yatıracak.", "raw_pii": ["TR42 0006 1000 0000 0012 3456 78"], "must_keep": ["kitap parası yatıracak."]}
+{"id": 16, "input": "benim ismim deniz, 5. sınıfım ve bölme işlemini anlamadım.", "raw_pii": ["deniz"], "must_keep": ["5. sınıfım ve bölme işlemini anlamadım."]}
+{"id": 17, "input": "Öğrenciye her adım için ipucu ver.", "raw_pii": [], "must_keep": ["Öğrenciye her adım için ipucu ver."]}
+{"id": 18, "input": "İkinci adım ne olmalı?", "raw_pii": [], "must_keep": ["İkinci adım ne olmalı?"]}
+{"id": 19, "input": "Bir adım geri gidip tekrar dene.", "raw_pii": [], "must_keep": ["Bir adım geri gidip tekrar dene."]}
+{"id": 20, "input": "Adım nedir, bilmiyorum.", "raw_pii": [], "must_keep": ["Adım nedir, bilmiyorum."]}
+{"id": 21, "input": "Son adım olarak sonucu sadeleştir.", "raw_pii": [], "must_keep": ["Son adım olarak sonucu sadeleştir."]}
+{"id": 22, "input": "İlk adımda paydaları eşitle.", "raw_pii": [], "must_keep": ["İlk adımda paydaları eşitle."]}
+{"id": 23, "input": "Adım adım çözelim.", "raw_pii": [], "must_keep": ["Adım adım çözelim."]}
+{"id": 24, "input": "Her Adım İçin kontrol et.", "raw_pii": [], "must_keep": ["Her Adım İçin kontrol et."]}
+{"id": 25, "input": "500 elma ile 250 armut toplandığında kaç meyve olur?", "raw_pii": [], "must_keep": ["500 elma ile 250 armut toplandığında kaç meyve olur?"]}
+{"id": 26, "input": "12345678901 sayısının rakamları toplamı kaçtır?", "raw_pii": [], "must_keep": ["12345678901 sayısının rakamları toplamı kaçtır?"]}
+{"id": 27, "input": "x + 5 = 12 ise x kaçtır?", "raw_pii": [], "must_keep": ["x + 5 = 12 ise x kaçtır?"]}
+{"id": 28, "input": "2024 yılında 366 gün vardı, 2025'te kaç gün var?", "raw_pii": [], "must_keep": ["2024 yılında 366 gün vardı, 2025'te kaç gün var?"]}
+{"id": 29, "input": "Lise 2 matematik konusu türev mi?", "raw_pii": [], "must_keep": ["Lise 2 matematik konusu türev mi?"]}
+{"id": 30, "input": "Bana bu soruyu açıklar mısın?", "raw_pii": [], "must_keep": ["Bana bu soruyu açıklar mısın?"]}
+{"id": 31, "input": "Üçgenin iç açıları toplamı 180 derecedir, x açısını bul.", "raw_pii": [], "must_keep": ["Üçgenin iç açıları toplamı 180 derecedir, x açısını bul."]}

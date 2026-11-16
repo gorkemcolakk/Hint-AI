@@ -106,7 +106,8 @@ class PairingCode(Base):
     child_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("child_profiles.id", ondelete="CASCADE"), index=True
     )
-    code_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    # 6 haneli kod uzayında eski kodlarla çakışabilir; kod her zaman child_id ile birlikte aranır.
+    code_hash: Mapped[str] = mapped_column(String(64), index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     attempts: Mapped[int] = mapped_column(SmallInteger, default=0)
     max_attempts: Mapped[int] = mapped_column(SmallInteger, default=5)

@@ -21,10 +21,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.modules.auth_consent.models import Consent
-from app.modules.llm_gateway.mask import mask_pii
+from app.modules.llm_gateway.mask import TrustedText, mask_pii
 from app.modules.llm_gateway.models import LLMCall
 from app.modules.llm_gateway.providers import (
     BaseLLMProvider,
+    ChildContextRequiredError,
     ConsentRequiredError,
     DailyLimitExceededError,
     HttpLLMProvider,
@@ -39,6 +40,9 @@ from app.modules.llm_gateway.providers import (
 )
 
 logger = logging.getLogger("llm_gateway")
+
+# Çocuk verisi içermeyen, bu yüzden çocuk bağlamı (rıza/limit) gerektirmeyen çağrı amaçları.
+NON_CHILD_PURPOSES = frozenset({"eval"})
 
 
 @dataclass
@@ -82,9 +86,8 @@ class LLMGatewayService:
                 provider_name,
                 model_name,
             )
-        else:
-            # Bilinmeyen sağlayıcı durumunda mock'a güvenli düşüş
-            return MockLLMProvider(), "mock", model_name
+        # Ayarlar başlangıçta doğrulanır; buraya gelmek bir yapılandırma hatasıdır.
+        raise ValueError(f"Bilinmeyen LLM_PROVIDER: {provider_name}")
 
     def calculate_cost(self, model: str, token_in: int, token_out: int) -> Decimal:
         """Modele göre token maliyetini USD olarak hesaplar."""
@@ -100,7 +103,7 @@ class LLMGatewayService:
         self,
         prompt: str,
         purpose: str,
-        system_prompt: str | None = None,
+        system_prompt: TrustedText | None = None,
         prompt_version: str = "v1",
         child_id: uuid.UUID | None = None,
         db: AsyncSession | None = None,
@@ -109,17 +112,24 @@ class LLMGatewayService:
         max_tokens: int = 1000,
     ) -> LLMGatewayResult:
         """Tek bir prompt için maskeleme, retry, çağrı ve kayıt işlemlerini yürütür."""
+        # 0. ÇOCUK BAĞLAMI ZORUNLU (fail-closed): rıza ve limit kontrolü atlanamaz.
+        if child_id is None and purpose not in NON_CHILD_PURPOSES:
+            raise ChildContextRequiredError(
+                f"'{purpose}' amaçlı çağrı için child_id ve db zorunludur."
+            )
+        if child_id is not None and db is None:
+            raise ChildContextRequiredError("Rıza kontrolü için db oturumu zorunludur.")
+
         # 1. ZORUNLU PII MASKELEME
-        # Metin doğrudan sağlayıcıya gidemez; mask_pii çağrılarak MaskedText elde edilir.
+        # Kullanıcı metni doğrudan sağlayıcıya gidemez; mask_pii ile MaskedText elde edilir.
+        # System prompt uygulamanın kendi metnidir (TrustedText) ve maskelenmez.
         detected_types: list[str] = []
 
         messages: list[LLMMessage] = []
-        if system_prompt:
-            sys_mask = mask_pii(system_prompt)
-            for dt in sys_mask.detected_types:
-                if dt not in detected_types:
-                    detected_types.append(dt)
-            messages.append(LLMMessage(role="system", content=sys_mask.masked_text))
+        if system_prompt is not None:
+            if not isinstance(system_prompt, TrustedText):
+                raise TypeError("system_prompt TrustedText olmalı; kullanıcı metni buraya konamaz.")
+            messages.append(LLMMessage(role="system", content=system_prompt))
 
         user_mask = mask_pii(prompt)
         for dt in user_mask.detected_types:

@@ -4,18 +4,21 @@ Sağlayıcı soyutlaması, retry/timeout, maliyet hesaplama, DB kaydı ve
 maskelemenin zorunlu olduğunu doğrular.
 """
 
+import uuid
 from decimal import Decimal
 
 import httpx
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import Settings, settings
 from app.modules.auth_consent.models import ChildProfile, Consent, User
-from app.modules.llm_gateway.mask import MaskedText
+from app.modules.llm_gateway.mask import MaskedText, TrustedText
 from app.modules.llm_gateway.models import LLMCall
 from app.modules.llm_gateway.providers import (
+    ChildContextRequiredError,
     ConsentRequiredError,
     DailyLimitExceededError,
     HttpLLMProvider,
@@ -69,7 +72,7 @@ async def test_service_automatically_masks_pii() -> None:
 
     result = await service.complete(
         prompt=raw_input,
-        purpose="hint",
+        purpose="eval",
         prompt_version="hint_v1",
     )
 
@@ -122,7 +125,7 @@ async def test_retry_on_timeout_and_server_errors() -> None:
     flaky = FlakyProvider()
     service = LLMGatewayService(provider=flaky)
 
-    result = await service.complete(prompt="Soru metni", purpose="hint")
+    result = await service.complete(prompt="Soru metni", purpose="eval")
     assert result.retry_count == 1
     assert flaky.attempts == 2
     assert result.content == "Bu bir test ipucudur."
@@ -135,10 +138,53 @@ async def test_no_retry_on_client_error() -> None:
     service = LLMGatewayService(provider=mock)
 
     with pytest.raises(LLMClientError):
-        await service.complete(prompt="Soru", purpose="hint")
+        await service.complete(prompt="Soru", purpose="eval")
 
     # Sadece 1 kez çağrıldı, retry yapılmadı
     assert mock.call_count == 1
+
+
+@pytest.mark.asyncio
+async def test_child_purpose_without_child_context_is_rejected() -> None:
+    """Çocuk bağlamı olmadan çocuk amaçlı çağrı rıza/limit kontrolünü atlayamaz (fail-closed)."""
+    mock = MockLLMProvider()
+    service = LLMGatewayService(provider=mock)
+
+    with pytest.raises(ChildContextRequiredError):
+        await service.complete(prompt="Soru", purpose="hint")
+    with pytest.raises(ChildContextRequiredError):
+        await service.complete(prompt="Soru", purpose="hint", child_id=uuid.uuid4())
+
+    assert mock.call_count == 0
+
+
+@pytest.mark.asyncio
+async def test_system_prompt_is_trusted_and_not_masked() -> None:
+    """System prompt uygulamanın metnidir; maskelenmeden gider, düz str kabul edilmez."""
+    mock = MockLLMProvider()
+    service = LLMGatewayService(provider=mock)
+    system_prompt = TrustedText("Öğrenciye her adım için ipucu ver. Adım Adım ilerle.")
+
+    await service.complete(prompt="Soru", purpose="eval", system_prompt=system_prompt)
+    assert str(mock.calls[0][0].content) == system_prompt
+
+    with pytest.raises(TypeError):
+        await service.complete(
+            prompt="Soru",
+            purpose="eval",
+            system_prompt="düz metin",  # type: ignore[arg-type]
+        )
+
+
+def test_trusted_text_only_allowed_for_system_role() -> None:
+    with pytest.raises(TypeError):
+        LLMMessage(role="user", content=TrustedText("kullanıcı metni gibi davranan metin"))
+
+
+def test_unknown_llm_provider_fails_at_startup() -> None:
+    with pytest.raises(ValidationError):
+        Settings(llm_provider="gemni")
+    assert Settings(llm_provider=" Gemini ").llm_provider == "gemini"
 
 
 @pytest.mark.asyncio
@@ -412,6 +458,7 @@ async def test_pii_eval_runner_zero_leaks() -> None:
     """Eval çalıştırıcısı sahte veri setini test eder ve sızan PII sayısının 0 olduğunu doğrular."""
     report = await run_pii_eval()
     assert report["leaked_pii_count"] == 0
+    assert report["false_positive_count"] == 0
     assert report["leak_rate_percent"] == 0.0
     assert report["passed"] is True
-    assert report["total_cases"] >= 4
+    assert report["total_cases"] >= 30

@@ -12,7 +12,7 @@ from typing import Any
 
 import httpx
 
-from app.modules.llm_gateway.mask import MaskedText
+from app.modules.llm_gateway.mask import MaskedText, TrustedText
 
 
 class LLMError(Exception):
@@ -59,12 +59,21 @@ class DailyLimitExceededError(LLMError):
     pass
 
 
+class ChildContextRequiredError(LLMError):
+    """Çocuk bağlamı (child_id + db) olmadan çocuk verisi işleyebilecek bir çağrı yapıldığında."""
+
+    pass
+
+
 @dataclass(frozen=True)
 class LLMMessage:
     role: str
-    content: MaskedText
+    content: MaskedText | TrustedText
 
     def __post_init__(self) -> None:
+        # Uygulamanın kendi metni (TrustedText) yalnızca system rolünde kabul edilir.
+        if isinstance(self.content, TrustedText) and self.role == "system":
+            return
         if not isinstance(self.content, MaskedText):
             raise TypeError(
                 "LLMMessage içeriği MaskedText tipinde olmak zorundadır. "
@@ -99,6 +108,8 @@ class BaseLLMProvider(ABC):
         if not messages:
             raise ValueError("Mesaj listesi boş olamaz.")
         for msg in messages:
+            if isinstance(msg.content, TrustedText) and msg.role == "system":
+                continue
             if not isinstance(msg.content, MaskedText):
                 raise TypeError("Sağlayıcıya maskelenmemiş metin verilemez. MaskedText zorunludur.")
 

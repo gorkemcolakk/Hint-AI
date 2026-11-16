@@ -28,7 +28,7 @@ jobs:
     env:
       HINT_DATABASE_URL: postgresql://hint:hint@localhost:5432/hint
       HINT_ASYNC_DATABASE_URL: postgresql+asyncpg://hint:hint@localhost:5432/hint
-      TEST_DATABASE_URL: postgresql+asyncpg://hint:hint@localhost:5432/hint
+      TEST_DATABASE_URL: postgresql+asyncpg://hint:hint@localhost:5432/hint_test
       HINT_JWT_SECRET: ci-test-secret-0123456789abcdefghijklmnop
     steps:
       - uses: actions/checkout@v4

@@ -16,6 +16,7 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 | **M1** | Kimlik, rıza ve çocuk profili (Auth, ebeveyn kaydı, eşleştirme) | ✅ tamam |
 | **M1.5** | Expo istemci iskeleti (React Native + Web, TypeScript, tek kod tabanı) | ✅ tamam |
 | **M2** | LLM Gateway + PII maskeleme (Gemini/OpenAI uyumlu, rıza/kota, eval) | ✅ tamam |
+| **M2.1** | Gateway sertleştirme (maskeleme yanlış pozitifleri, fail-closed rıza, ayrı test DB) | ✅ tamam |
 | **M3** | Gizli çözüm + SymPy doğrulama | 🔜 sıradaki |
 | **M4** | İpucu merdiveni (L0–L4) + sızıntı kontrolü | ⏳ bekliyor |
 | **M5** | Güvenlik katmanı ve moderasyon (kriz yönlendirmesi, injection) | ⏳ bekliyor |
@@ -34,9 +35,10 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 - **Amaç bazlı rıza** (`service`, `analytics`, `llm_processing`, `photo_processing`) — `service` rızası olmadan çocuk oturumu açılamaz, `llm_processing` rızası olmadan LLM çağrısı yapılamaz.
 - **Cihaz eşleştirme** — tek kullanımlık kod (hash'li, 10 dk geçerlilik, 5 hatalı deneme sınırı).
 - **LLM Gateway & Sağlayıcı soyutlaması** — OpenAI uyumlu genel HTTP sağlayıcısı (Google Gemini) ve testler için `MockLLMProvider`.
-- **KVKK uyumlu PII maskeleme** — TCKN (checksum doğrulamalı), TR telefon, e-posta, TR IBAN ve sezgisel ad/okul kalıpları sağlayıcıya gitmeden maskelenir.
+- **KVKK uyumlu PII maskeleme** — TCKN (checksum doğrulamalı), TR telefon, e-posta, TR IBAN ve sezgisel ad/okul kalıpları sağlayıcıya gitmeden maskelenir. "adım" (step) gibi ifadeler isim sanılmaz; uygulamanın kendi system prompt'ları (`TrustedText`) maskelenmez.
+- **Fail-closed rıza** — çocuk verisi işleyebilecek her LLM çağrısı çocuk bağlamı ister; bağlam yoksa çağrı yapılmaz.
 - **Gizlilik ve maliyet izleme** — `llm_calls` tablosunda ve loglarda çocuk metni/prompt tutulmaz; token ve maliyet izlenir, çocuk başına günlük çağrı limiti uygulanır.
-- **Eval çalıştırıcısı** — `apps/api/evals` altında sentetik çocuk veri setiyle çalışan sıfır PII sızıntı doğrulayıcısı.
+- **Eval çalıştırıcısı** — `make eval`: 31 sentetik vakada PII sızıntısı ve yanlış pozitif (bozulan soru/ipucu metni) sayılır; hedef ikisi de 0.
 
 ## Teknoloji
 
@@ -70,11 +72,11 @@ docker compose exec api alembic upgrade head
 
 ### 3. Testleri çalıştırma
 
-Postgres Compose üzerinde `localhost:5432` portunda açıkken:
+Postgres Compose üzerinde `localhost:5432` portunda açıkken. Testler tabloları boşalttığı için geliştirme veritabanını değil, adı `_test` ile biten ayrı bir veritabanını kullanır; `hint_test` yoksa ilk çalıştırmada oluşturulur.
 
 ```powershell
 cd apps/api
-$env:TEST_DATABASE_URL = "postgresql+asyncpg://hint:hint@localhost:5432/hint"
+$env:TEST_DATABASE_URL = "postgresql+asyncpg://hint:hint@localhost:5432/hint_test"
 pytest
 ```
 

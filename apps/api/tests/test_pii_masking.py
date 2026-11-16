@@ -102,6 +102,34 @@ def test_mask_pii_names_heuristic() -> None:
         assert "ISIM" in res.detected_types
 
 
+def test_mask_pii_names_lowercase_and_sentence_start() -> None:
+    cases = [
+        ("benim adım ahmet", "benim adım [ISIM]"),
+        ("adım ayşe, yardım et", "adım [ISIM], yardım et"),
+        ("Merhaba. adım ali", "Merhaba. adım [ISIM]"),
+        ("ismim ali ve 3 elmam var", "ismim [ISIM] ve 3 elmam var"),
+    ]
+    for inp, expected in cases:
+        assert mask_pii(inp).masked_text == expected
+
+
+def test_mask_pii_does_not_treat_step_as_name() -> None:
+    # "adım" aynı zamanda "step" demektir; ipucu metinleri ve sorular bozulmamalı.
+    texts = [
+        "Öğrenciye her adım için ipucu ver.",
+        "İkinci adım ne olmalı?",
+        "Bir adım geri gidip tekrar dene.",
+        "Adım ne olmalı?",
+        "Her Adım İçin kontrol et.",
+        "Son adım olarak sonucu sadeleştir.",
+        "İlk adımda paydaları eşitle.",
+    ]
+    for text in texts:
+        res = mask_pii(text)
+        assert res.masked_text == text
+        assert res.has_pii is False
+
+
 def test_mask_pii_school_heuristic() -> None:
     cases = [
         (

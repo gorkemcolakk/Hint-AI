@@ -1,5 +1,7 @@
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+LLM_PROVIDERS = ("mock", "http", "gemini", "openai")
 
 
 class Settings(BaseSettings):
@@ -64,6 +66,15 @@ class Settings(BaseSettings):
     )
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="HINT_", extra="ignore")
+
+    @field_validator("llm_provider")
+    @classmethod
+    def _validate_llm_provider(cls, value: str) -> str:
+        # Yazım hatası canlıda sessizce sahte sağlayıcıya düşmesin; uygulama açılırken hata versin.
+        normalized = value.lower().strip()
+        if normalized not in LLM_PROVIDERS:
+            raise ValueError(f"LLM_PROVIDER şunlardan biri olmalı: {', '.join(LLM_PROVIDERS)}")
+        return normalized
 
 
 settings = Settings()

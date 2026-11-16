@@ -1,9 +1,10 @@
 """LLM Gateway Modülü."""
 
-from app.modules.llm_gateway.mask import MaskedText, mask_pii
+from app.modules.llm_gateway.mask import MaskedText, TrustedText, mask_pii
 from app.modules.llm_gateway.models import LLMCall
 from app.modules.llm_gateway.providers import (
     BaseLLMProvider,
+    ChildContextRequiredError,
     ConsentRequiredError,
     DailyLimitExceededError,
     HttpLLMProvider,
@@ -21,6 +22,7 @@ from app.modules.llm_gateway.service import LLMGatewayResult, LLMGatewayService
 __all__ = [
     "mask_pii",
     "MaskedText",
+    "TrustedText",
     "LLMCall",
     "BaseLLMProvider",
     "MockLLMProvider",
@@ -28,6 +30,7 @@ __all__ = [
     "LLMMessage",
     "LLMResponse",
     "LLMError",
+    "ChildContextRequiredError",
     "ConsentRequiredError",
     "DailyLimitExceededError",
     "LLMTimeoutError",

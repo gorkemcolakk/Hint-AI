@@ -25,7 +25,7 @@ migrate:
 	cd apps/api && alembic upgrade head
 
 eval:
-	@echo eval henüz yapılandırılmadı (M4+)
+	cd apps/api && python -m evals.run_pii_eval
 
 client-gen:
 	cd apps/api && python -m scripts.export_openapi ../client/openapi.json

@@ -153,8 +153,8 @@ Python 3.12, FastAPI, SQLAlchemy 2 + Alembic, PostgreSQL (+pgvector), Redis, pyt
 - Küçük PR'lar, açıklayıcı commit mesajları.
 
 ## Çalışma biçimi
-- docs/master-plan.md Bölüm 15.2'deki milestone sırasını izle (M0→M8). Her milestone'un kabul kriterlerini karşılamadan bir sonrakine geçme.
-- Belirsiz karar: docs/master-plan.md Bölüm 20'ye bak; yoksa varsayımı ASSUMPTIONS.md'ye yaz, ilerle, PR açıklamasında belirt.
+- hint-ai-master-plan.md Bölüm 15.2'deki milestone sırasını izle (M0→M8). Her milestone'un kabul kriterlerini karşılamadan bir sonrakine geçme.
+- Belirsiz karar: hint-ai-master-plan.md Bölüm 20'ye bak; yoksa varsayımı ASSUMPTIONS.md'ye yaz, ilerle, PR açıklamasında belirt.
 - Kritik güvenlik/gizlilik kararını (rıza, saklama süresi, kriz akışı) tek başına verme; PR'da ilgili kişiyi etiketle.
 
 ## Definition of Done

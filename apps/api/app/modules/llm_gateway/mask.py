@@ -14,6 +14,15 @@ class MaskedText(str):
     pass
 
 
+class TrustedText(str):
+    """Uygulamanın kendi yazdığı, kullanıcı girdisi içermeyen metin (system prompt'lar).
+
+    Maskelenmez; yalnızca system rolündeki mesajlarda kullanılabilir.
+    """
+
+    pass
+
+
 @dataclass(frozen=True)
 class MaskResult:
     masked_text: MaskedText
@@ -79,10 +88,31 @@ _TCKN_CANDIDATE_REGEX = re.compile(r"(?<!\d)[1-9]\d{10}(?!\d)")
 _IBAN_CANDIDATE_REGEX = re.compile(r"(?i)\bTR[\s\d]{24,32}\b")
 
 # Sezgisel İsim Kalıpları
-_NAME_ADIM_REGEX = re.compile(
-    r"(?i)\b(?:benim\s+)?(?:adım|ismim)\s+([A-ZÇĞİÖŞÜa-zçğıöşü]+(?:\s+[A-ZÇĞİÖŞÜa-zçğıöşü]+)?)"
+# "adım" Türkçede hem "benim adım" hem "ilk adım" anlamına gelir. Belirsiz olmayan
+# kalıplar ("ismim", "benim adım") her zaman isim sayılır; tek başına "adım" ise yalnızca
+# büyük harfle başlayan bir kelimeden önce ya da cümle başında, adım bağlamı kelimesi
+# gelmiyorsa isim sayılır.
+_LETTER = "A-Za-zÇĞİÖŞÜçğıöşü"
+_UPPER = "A-ZÇĞİÖŞÜ"
+_ANY_NAME = rf"[{_LETTER}]+"
+_CAP_NAME = rf"[{_UPPER}][{_LETTER}]*"
+_STEP_WORDS = (
+    r"(?:ne|nedir|neydi|nasıl|hangisi|olarak|için|sonra|sonrası|sonraki|önce|geri|ileri|"
+    r"atarak|atalım|at|adım|daha|bu|şu|o|bir|ilk|son|var|yok|doğru|yanlış|gibi|ile|de|da|"
+    r"mı|mi)"
 )
-_NAME_BANA_REGEX = re.compile(r"(?i)\bbana\s+([A-ZÇĞİÖŞÜa-zçğıöşü]+)\s+derler\b")
+# Ad + en fazla iki büyük harfli kelime (ikinci ad, soyad); "Kerem Can Aydın" tamamen maskelenir.
+_SURNAMES = rf"(?:\s+{_CAP_NAME}){{0,2}}"
+_NAME_EXPLICIT_REGEX = re.compile(
+    rf"(?i:\b(?:benim\s+(?:adım|ismim)|ismim))\s+({_ANY_NAME}{_SURNAMES})"
+)
+_NAME_ADIM_CAPITAL_REGEX = re.compile(
+    rf"(?i:\badım)\s+(?!(?i:{_STEP_WORDS})\b)({_CAP_NAME}{_SURNAMES})"
+)
+_NAME_ADIM_SENTENCE_START_REGEX = re.compile(
+    rf"(?:^|(?<=[.!?]\s)|(?<=\n))(?i:adım)\s+(?!(?i:{_STEP_WORDS})\b)({_ANY_NAME})"
+)
+_NAME_BANA_REGEX = re.compile(rf"(?i:\bbana)\s+({_ANY_NAME})\s+(?i:derler)\b")
 
 # Sezgisel Okul Kalıpları (1-3 kelime + okul türü; zamirler hariç)
 _SCHOOL_STOP_WORDS = r"(?:ben|biz|sen|benim|bizim|o|şu|bu)"
@@ -141,24 +171,21 @@ def mask_pii(text: str) -> MaskResult:
         detected.append("OKUL")
         result = _SCHOOL_REGEX.sub("[OKUL]", result)
 
-    # 6. Sezgisel ad maskeleme
-    def _replace_adim(match: re.Match[str]) -> str:
-        full = match.group(0)
-        name = match.group(1)
+    # 6. Sezgisel ad maskeleme (yalnızca yakalanan ad değiştirilir, kalıbın kalanı korunur)
+    def _replace_name(match: re.Match[str]) -> str:
         if "ISIM" not in detected:
             detected.append("ISIM")
-        return full.replace(name, "[ISIM]")
-
-    result = _NAME_ADIM_REGEX.sub(_replace_adim, result)
-
-    def _replace_bana(match: re.Match[str]) -> str:
+        start, end = match.start(1) - match.start(0), match.end(1) - match.start(0)
         full = match.group(0)
-        name = match.group(1)
-        if "ISIM" not in detected:
-            detected.append("ISIM")
-        return full.replace(name, "[ISIM]")
+        return full[:start] + "[ISIM]" + full[end:]
 
-    result = _NAME_BANA_REGEX.sub(_replace_bana, result)
+    for name_regex in (
+        _NAME_EXPLICIT_REGEX,
+        _NAME_ADIM_CAPITAL_REGEX,
+        _NAME_ADIM_SENTENCE_START_REGEX,
+        _NAME_BANA_REGEX,
+    ):
+        result = name_regex.sub(_replace_name, result)
 
     return MaskResult(
         masked_text=MaskedText(result),
