@@ -41,3 +41,4 @@
 | M3-3 | SymPy güvenliği | LLM ifadeleri yalnızca izinli karakter/isimlerle, uzunluk ve üs sınırıyla ayrıştırılır (`parse_expr` eval kullandığı için) | 2026-11-16 | BM-1 |
 | M3-4 | Çözüm önbelleği | Normalleştirilmiş maskeli soru hash'i → yalnızca doğrulanmış çözümler yeniden kullanılır; önbellek öğrenci verisi içermez | 2026-11-16 | BM-1 |
 | M3-5 | Soru saklama | Soru metni yalnızca PII maskelenmiş haliyle `problems` tablosunda; gizli çözüm ayrı tabloda ve API yanıtlarında yok | 2026-11-16 | BM-1 |
+| M3-6 | Model ve ölçüm | `gemini-3.6-flash` (2.5-flash yeni kullanıcılara kapalı; 3.7/3.8 yoğunluktan yanıt vermedi), zaman aşımı 90 sn. Ücretli katmana geçilmeyecek; M3 ücretsiz kotayla yapılan kısmi ölçümle (22/22 doğru) kapatıldı | 2026-11-16 | BM-1 |

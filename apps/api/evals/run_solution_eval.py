@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from app.modules.llm_gateway.mask import mask_pii
-from app.modules.llm_gateway.providers import BaseLLMProvider, LLMMessage, LLMResponse
+from app.modules.llm_gateway.providers import BaseLLMProvider, LLMError, LLMMessage, LLMResponse
 from app.modules.llm_gateway.service import LLMGatewayService
 from app.modules.problems.service import generate_solution, normalize_problem, status_for
 from app.modules.problems.verify import answers_match
@@ -57,19 +57,32 @@ class ReferenceProvider(BaseLLMProvider):
         return LLMResponse(json.dumps(payload, ensure_ascii=False), 0, 0, 0)
 
 
-async def run_solution_eval(real: bool = False) -> dict[str, Any]:
-    cases = load_cases()
+async def run_solution_eval(
+    real: bool = False, delay_seconds: float = 0.0, start_id: int = 1
+) -> dict[str, Any]:
+    # start_id: günlük kota dolduğunda ölçüme kalınan sorudan devam etmek için.
+    cases = [case for case in load_cases() if case["id"] >= start_id]
     gateway = LLMGatewayService() if real else LLMGatewayService(ReferenceProvider(cases))
 
     statuses: Counter[str] = Counter()
     correct = 0
     unexpected: list[str] = []
     started = time.monotonic()
-    for case in cases:
+    for index, case in enumerate(cases):
+        if index and delay_seconds:
+            # Ücretsiz katmanın dakika başına istek sınırına takılmamak için.
+            await asyncio.sleep(delay_seconds)
         masked = str(mask_pii(case["text"]).masked_text)
-        outcome = await generate_solution(masked, gateway, purpose="eval")
-        status = status_for(outcome)
+        try:
+            outcome = await generate_solution(masked, gateway, purpose="eval")
+            status = status_for(outcome)
+        except LLMError as exc:
+            # Sağlayıcı yoğunluğu/zaman aşımı tek soruyu düşürür, ölçümü durdurmaz.
+            outcome, status = None, "error"
+            print(f"#{case['id']} sağlayıcı hatası: {type(exc).__name__}")
         statuses[status] += 1
+        if real:
+            print(f"#{case['id']:>2} {status}", flush=True)
         if outcome is not None and answers_match(case["answer"], outcome.payload.final_answer):
             correct += 1
         if status != case.get("expect_status", "verified"):
@@ -103,7 +116,11 @@ async def run_solution_eval(real: bool = False) -> dict[str, Any]:
 
 
 def main() -> None:
-    report = asyncio.run(run_solution_eval(real="--real" in sys.argv))
+    real = "--real" in sys.argv
+    start_id = int(sys.argv[sys.argv.index("--from") + 1]) if "--from" in sys.argv else 1
+    report = asyncio.run(
+        run_solution_eval(real=real, delay_seconds=5.0 if real else 0.0, start_id=start_id)
+    )
     sys.exit(0 if report["passed"] else 1)
 
 

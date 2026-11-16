@@ -17,7 +17,7 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 | **M1.5** | Expo istemci iskeleti (React Native + Web, TypeScript, tek kod tabanı) | ✅ tamam |
 | **M2** | LLM Gateway + PII maskeleme (Gemini/OpenAI uyumlu, rıza/kota, eval) | ✅ tamam |
 | **M2.1** | Gateway sertleştirme (maskeleme yanlış pozitifleri, fail-closed rıza, ayrı test DB) | ✅ tamam |
-| **M3** | Gizli çözüm + SymPy doğrulama | 🟡 kod tamam; gerçek model ölçümü Gemini anahtarı bekliyor |
+| **M3** | Gizli çözüm + SymPy doğrulama | ✅ tamam (gerçek model: 22/22 doğru, kısmi ölçüm) |
 | **M4** | İpucu merdiveni (L0–L4) + sızıntı kontrolü | ⏳ bekliyor |
 | **M5** | Güvenlik katmanı ve moderasyon (kriz yönlendirmesi, injection) | ⏳ bekliyor |
 | **M6** | Expo çocuk modu (öğrenme akışı, yaş temaları) | ⏳ bekliyor |
@@ -39,7 +39,7 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 - **Fail-closed rıza** — çocuk verisi işleyebilecek her LLM çağrısı çocuk bağlamı ister; bağlam yoksa çağrı yapılmaz.
 - **Gizlilik ve maliyet izleme** — `llm_calls` tablosunda ve loglarda çocuk metni/prompt tutulmaz; token ve maliyet izlenir, çocuk başına günlük çağrı limiti uygulanır.
 - **Gizli çözüm + SymPy doğrulama** — `POST /v1/problems`: soru maskelenip kaydedilir, LLM yapılandırılmış çözüm üretir, SymPy cevabı bağımsız kontrol eder (tutmazsa bir kez yeniden üretilir, yine tutmazsa düşük güven). Çözüm öğrenciye dönmez; doğrulanan çözümler aynı soru için önbellektir. LLM çıktısı SymPy'a güvenli ayrıştırmayla girer.
-- **Eval çalıştırıcısı** — `make eval`: 31 sentetik vakada PII sızıntısı ve yanlış pozitif; 60 soruluk 5–8. sınıf golden set'te SymPy doğrulama oranı ve cevap doğruluğu (`python -m evals.run_solution_eval --real` gerçek modelle).
+- **Eval çalıştırıcısı** — `make eval`: 31 sentetik vakada PII sızıntısı ve yanlış pozitif; 60 soruluk 5–8. sınıf golden set'te SymPy doğrulama oranı ve cevap doğruluğu (`python -m evals.run_solution_eval --real` gerçek modelle; son rapor: [evals/reports](evals/reports/2026-11-16-solve_v1-gemini-3.6-flash.md)).
 
 ## Teknoloji
 

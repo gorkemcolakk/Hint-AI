@@ -30,7 +30,7 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("LLM_BASE_URL", "HINT_LLM_BASE_URL", "llm_base_url"),
     )
     llm_model: str = Field(
-        default="gemini-2.5-flash",
+        default="gemini-3.6-flash",
         validation_alias=AliasChoices("LLM_MODEL", "HINT_LLM_MODEL", "llm_model"),
     )
     llm_api_key: str = Field(
@@ -38,7 +38,7 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("LLM_API_KEY", "HINT_LLM_API_KEY", "llm_api_key"),
     )
     llm_timeout_seconds: float = Field(
-        default=30.0,
+        default=90.0,
         validation_alias=AliasChoices(
             "LLM_TIMEOUT_SECONDS", "HINT_LLM_TIMEOUT_SECONDS", "llm_timeout_seconds"
         ),
