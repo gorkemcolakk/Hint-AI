@@ -8,6 +8,7 @@ export default function GuardianLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: Colors.guardian },
         headerTintColor: Colors.onPrimary,
+        headerBackButtonDisplayMode: 'minimal',
       }}>
       <Stack.Screen name="children/index" options={{ title: 'Çocuklarım' }} />
       <Stack.Screen name="children/new" options={{ title: 'Çocuk ekle' }} />

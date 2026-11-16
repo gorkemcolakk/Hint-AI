@@ -18,7 +18,11 @@ export function Screen({ title, subtitle, hasHeader = false, children }: Props) 
     <SafeAreaView
       style={styles.safeArea}
       edges={hasHeader ? ['bottom', 'left', 'right'] : ['top', 'bottom', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      {/* iOS'ta yarı saydam başlık içeriğin üstüne biner; automatic, içeriği başlığın altından başlatır. */}
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled">
         <View style={styles.content}>
           {title ? (
             <Text accessibilityRole="header" style={styles.title}>
