@@ -21,7 +21,13 @@ async def check_database(url: str) -> dict[str, Any]:
 
 
 async def check_redis(url: str) -> dict[str, Any]:
-    """Redis'e PING atar; sonucu durum sözlüğü olarak döner."""
+    """Redis'e PING atar; sonucu durum sözlüğü olarak döner.
+
+    Adres boşsa (Docker'sız yerel geliştirme) kontrol atlanır; uygulama şu an Redis'e
+    yalnızca hazırlık kontrolü için bakıyor.
+    """
+    if not url:
+        return {"ok": True, "skipped": True}
 
     async def _probe() -> None:
         import redis.asyncio as aioredis

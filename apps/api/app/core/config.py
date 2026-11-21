@@ -1,7 +1,7 @@
 from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-LLM_PROVIDERS = ("mock", "http", "gemini", "openai")
+LLM_PROVIDERS = ("mock", "demo", "http", "gemini", "openai")
 
 
 class Settings(BaseSettings):
@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     refresh_token_ttl_days: int = 30
     # Expo web istemcisinin API'yi çağırabileceği origin'ler (ortamda JSON liste).
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:8081"])
+    # Yalnızca yerel deneme: eşleştirmesiz demo oturumu açan /v1/dev uçları. Canlıda ASLA açmayın.
+    dev_shortcuts: bool = False
 
     # LLM Gateway
     llm_provider: str = Field(
@@ -55,6 +57,8 @@ class Settings(BaseSettings):
             "llm_daily_call_limit_per_child",
         ),
     )
+    # Kural kontrolünü geçen her ipucu ayrıca LLM yargıca sorulur (Hint Engine 7b).
+    leak_judge_enabled: bool = True
     llm_pricing: dict[str, dict[str, float]] = Field(
         default_factory=lambda: {
             "gemini-2.5-flash": {"input_per_million": 0.075, "output_per_million": 0.30},

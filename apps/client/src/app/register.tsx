@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
@@ -14,13 +14,15 @@ import { Colors } from '@/constants/theme';
 const MIN_PASSWORD_LENGTH = 8;
 
 export default function RegisterScreen() {
+  const params = useLocalSearchParams<{ role?: string }>();
+  const role = params.role === 'teacher' ? 'teacher' : 'guardian';
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const signUp = useMutation({
     mutationFn: () =>
-      register({ email: email.trim(), password, fullName: fullName.trim() || undefined }),
+      register({ email: email.trim(), password, fullName: fullName.trim() || undefined, role }),
   });
 
   function submit() {
@@ -39,10 +41,16 @@ export default function RegisterScreen() {
   return (
     <Screen
       hasHeader
-      title="Ebeveyn hesabı"
-      subtitle="Çocuğunun profilini ve rıza tercihlerini bu hesaptan yöneteceksin.">
+      title={role === 'teacher' ? 'Öğretmen hesabı' : 'Ebeveyn hesabı'}
+      subtitle={
+        role === 'teacher'
+          ? 'Sınıf oluşturup velilerin onayıyla öğrencilerinin konu bazındaki ilerlemesini göreceksin.'
+          : 'Çocuğunun profilini ve rıza tercihlerini bu hesaptan yöneteceksin.'
+      }>
       <TextField
-        label="Ad soyad (isteğe bağlı)"
+        label={
+          role === 'teacher' ? 'Ad soyad (velilere bu ad gösterilir)' : 'Ad soyad (isteğe bağlı)'
+        }
         value={fullName}
         onChangeText={setFullName}
         autoComplete="name"

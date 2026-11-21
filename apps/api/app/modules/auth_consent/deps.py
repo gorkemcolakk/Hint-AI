@@ -52,6 +52,16 @@ async def get_current_guardian(
     return user
 
 
+async def get_current_teacher(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> User:
+    user = await _require_access_user(credentials, db)
+    if user.role != "teacher":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Yalnızca öğretmen")
+    return user
+
+
 async def get_current_child(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],

@@ -23,6 +23,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.modules.auth_consent.models import Base
 
 PROBLEM_STATUSES = ("verified", "low_confidence", "unverifiable", "failed")
+# Öğretim durumu (status'tan ayrı: status çözümün doğrulama durumudur).
+PROBLEM_STATES = ("open", "solved")
 
 
 class HiddenSolution(Base):
@@ -51,6 +53,7 @@ class Problem(Base):
             "status IN ('verified','low_confidence','unverifiable','failed')",
             name="ck_problems_status",
         ),
+        CheckConstraint("state IN ('open','solved')", name="ck_problems_state"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -63,4 +66,8 @@ class Problem(Base):
     solution_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("hidden_solutions.id", ondelete="SET NULL")
     )
+    state: Mapped[str] = mapped_column(String(20), default="open", server_default="open")
+    # Son verilen ipucunun seviyesi; henüz ipucu verilmediyse None.
+    current_hint_level: Mapped[int | None] = mapped_column(SmallInteger)
+    solved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

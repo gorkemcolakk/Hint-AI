@@ -76,6 +76,11 @@ class LLMGatewayService:
 
         if provider_name == "mock":
             return MockLLMProvider(), "mock", model_name
+        if provider_name == "demo":
+            # Yerel demo: SymPy ile basit soruları çözer, şablon ipucu yazar (kota harcamaz).
+            from app.modules.llm_gateway.demo import DemoLLMProvider
+
+            return DemoLLMProvider(), "demo", "demo"
         elif provider_name in ("http", "gemini", "openai"):
             return (
                 HttpLLMProvider(

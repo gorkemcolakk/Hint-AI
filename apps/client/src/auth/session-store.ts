@@ -1,8 +1,13 @@
 import { useSyncExternalStore } from 'react';
 
-export type Session =
-  | { kind: 'guardian'; accessToken: string; refreshToken: string }
-  | { kind: 'child'; accessToken: string };
+/** Yetişkin hesapları (ebeveyn, öğretmen) yenileme token'ı taşır; çocuk oturumu taşımaz. */
+export type AdultKind = 'guardian' | 'teacher';
+export type AdultSession = { kind: AdultKind; accessToken: string; refreshToken: string };
+export type Session = AdultSession | { kind: 'child'; accessToken: string };
+
+export function isAdultSession(session: Session | null): session is AdultSession {
+  return session !== null && session.kind !== 'child';
+}
 
 export type SessionState = { status: 'loading' } | { status: 'ready'; session: Session | null };
 

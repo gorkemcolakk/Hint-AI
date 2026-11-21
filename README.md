@@ -18,12 +18,23 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 | **M2** | LLM Gateway + PII maskeleme (Gemini/OpenAI uyumlu, rıza/kota, eval) | ✅ tamam |
 | **M2.1** | Gateway sertleştirme (maskeleme yanlış pozitifleri, fail-closed rıza, ayrı test DB) | ✅ tamam |
 | **M3** | Gizli çözüm + SymPy doğrulama | ✅ tamam (gerçek model: 22/22 doğru, kısmi ölçüm) |
-| **M4** | İpucu merdiveni (L0–L4) + sızıntı kontrolü | ⏳ bekliyor |
-| **M5** | Güvenlik katmanı ve moderasyon (kriz yönlendirmesi, injection) | ⏳ bekliyor |
-| **M6** | Expo çocuk modu (öğrenme akışı, yaş temaları) | ⏳ bekliyor |
-| **M7** | Expo ebeveyn modu (raporlar, kota, faturalama) | ⏳ bekliyor |
-| **M8** | Expo öğretmen modu (sınıf paneli, ısı haritası) | ⏳ bekliyor |
+| **M4** | İpucu merdiveni (L0–L4) + sızıntı kontrolü | 🟡 prototip: kural + LLM yargıç çalışıyor; gerçek modelle yalnızca 1 soru ölçüldü (v2 prompt ölçümü bekliyor) |
+| **M5** | Güvenlik katmanı ve moderasyon (kriz yönlendirmesi, injection) | 🟡 prototip: kural tabanlı sınıflandırıcı; kriz metinleri uzman onayı bekliyor |
+| **M6** | Expo çocuk modu (öğrenme akışı, yaş temaları) | 🟡 prototip: web'de çalışıyor; mobil ve e2e test yok |
+| **M7** | Expo ebeveyn modu (raporlar, kota, faturalama) | 🟡 prototip: uygulama içi özet; e-posta raporu ve faturalama yok |
+| **M8** | Expo öğretmen modu (sınıf paneli, ısı haritası) | 🟡 prototip: sınıf, davet kodu, veli onayı, ısı haritası; MEB kazanım eşlemesi yok |
 | **M9** | Eval otomasyonu, gözlemlenebilirlik ve yayın hazırlığı | ⏳ bekliyor |
+
+M4–M8 prototipi tek bir dikey dilim olarak yapıldı (sıra ve gerekçe: [docs/mvp-plan.md](docs/mvp-plan.md)). Gerçek çocuklarla kullanım için ücretli LLM katmanı, uzman/hukuk onayları ve gerçek model ölçümü gerekir.
+
+## Prototipte eklenenler (M4–M8)
+
+- **İpucu merdiveni** — `POST /v1/problems/{id}/hints`, `POST /v1/problems/{id}/attempts`, `GET /v1/problems/{id}`. L0–L4 (L5 kapalı); "takıldım", 2 yanlış deneme ve zorlanma ifadesiyle yükselme; doğrulanamayan soruda temkinli üst sınır. Cevap SymPy ile kontrol edilir, doğru cevap hiçbir yanıtta dönmez.
+- **Sızıntı kontrolü** — kural katmanı (rakam, kesir, ondalık, yazıyla sayı, kök, "x = …" kalıpları; L0–L2'de ara sonuçlar) + LLM yargıç (`judge_v2`). Yargıç hatası/belirsizliği sızıntı sayılır; sızıntıda en fazla 3 üretim, yargıç 2 kez reddederse soru türüne uygun hazır ipucu.
+- **Girdi/çıktı güvenliği** — kriz (kendine zarar, istismar) metni LLM'e gitmez ve saklanmaz; sabit destek mesajı + 112 / ALO 183. "Cevabı söyle" girişimleri not ile işlenir. Model çıktısında kişisel veri, bağlantı, uygunsuz içerik varsa yeniden üretilir. Olaylar `moderation_events`'te (metin yok).
+- **Ebeveyn özeti** — `GET /v1/children/{id}/summary`: çözülen, ipucusuz çözülen, ortalama ipucu, konular, son sorular, güvenlik uyarıları. Varsayılan gizlilikte soru metni yok; istismar bildirimleri ebeveyne gösterilmez.
+- **Öğretmen paneli** — sınıf + davet kodu; veli kodu önizleyip onaylayarak çocuğu kaydeder ya da çıkarır. Konu × öğrenci ısı haritası; öğretmen soru/ipucu metnini ve güvenlik uyarılarını görmez.
+- **Eval** — `python -m evals.run_safety_eval` (adversarial set), `python -m evals.run_hint_eval [--real --ids 1,2]` (ipucu sızıntısı).
 
 ## Mevcut özellikler (M1 + M1.5 + M2 + M3)
 
@@ -50,6 +61,18 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 | Kalite | pytest · ruff · mypy (strict) · Jest + Testing Library · ESLint · GitHub Actions CI |
 
 ## Nasıl çalıştırılır
+
+### 0. Docker'sız (Windows, yalnızca Python + Node)
+
+PostgreSQL 16, venv içindeki `pixeltable-pgserver` paketinden gelir; sisteme kurulum gerekmez. `apps/api/.env.example`'ı `.env` olarak kopyalayıp veritabanı adreslerini `127.0.0.1:5432`, `HINT_REDIS_URL`'i boş yapın; kotasız deneme için `LLM_PROVIDER=demo`, demo giriş düğmeleri için `HINT_DEV_SHORTCUTS=true`.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\dev.ps1 setup   # venv + npm (bir kez)
+powershell -ExecutionPolicy Bypass -File scripts\dev.ps1 api     # DB + migration + API (:8000)
+powershell -ExecutionPolicy Bypass -File scripts\dev.ps1 web     # ayrı terminalde istemci (:8081)
+```
+
+Diğer komutlar: `test`, `lint`, `seed`, `stop`. Veritabanı `.local/pgdata`'da durur (git'e girmez).
 
 ### 1. Docker Compose ile başlatma
 

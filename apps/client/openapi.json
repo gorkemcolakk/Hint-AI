@@ -581,6 +581,573 @@
         ]
       }
     },
+    "/v1/problems/{problem_id}": {
+      "get": {
+        "tags": [
+          "tutoring"
+        ],
+        "summary": "Get Problem",
+        "operationId": "get_problem_v1_problems__problem_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "problem_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Problem Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/problems/{problem_id}/hints": {
+      "post": {
+        "tags": [
+          "tutoring"
+        ],
+        "summary": "Request Hint",
+        "operationId": "request_hint_v1_problems__problem_id__hints_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "problem_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Problem Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HintRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HintResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/problems/{problem_id}/attempts": {
+      "post": {
+        "tags": [
+          "tutoring"
+        ],
+        "summary": "Submit Attempt",
+        "operationId": "submit_attempt_v1_problems__problem_id__attempts_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "problem_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Problem Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/children/{child_id}/summary": {
+      "get": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "Child Summary",
+        "description": "Ebeveynin kendi çocuğu için dönem özeti (başka ebeveynin çocuğu 404).",
+        "operationId": "child_summary_v1_children__child_id__summary_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Child Id"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 90,
+              "minimum": 1,
+              "default": 7,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/classrooms": {
+      "get": {
+        "tags": [
+          "classrooms"
+        ],
+        "summary": "List Classrooms",
+        "operationId": "list_classrooms_v1_classrooms_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ClassroomOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Classrooms V1 Classrooms Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "classrooms"
+        ],
+        "summary": "Create Classroom",
+        "operationId": "create_classroom_v1_classrooms_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClassroomCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassroomOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/classrooms/{classroom_id}/heatmap": {
+      "get": {
+        "tags": [
+          "classrooms"
+        ],
+        "summary": "Heatmap",
+        "operationId": "heatmap_v1_classrooms__classroom_id__heatmap_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "classroom_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Classroom Id"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 180,
+              "minimum": 1,
+              "default": 30,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Heatmap"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/classrooms/preview": {
+      "post": {
+        "tags": [
+          "classrooms"
+        ],
+        "summary": "Preview Classroom",
+        "description": "Katılmadan önce: sınıf ve öğretmen adı, öğretmenin neleri göreceği.",
+        "operationId": "preview_classroom_v1_classrooms_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassroomPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/children/{child_id}/classrooms": {
+      "get": {
+        "tags": [
+          "classrooms"
+        ],
+        "summary": "List Child Classrooms",
+        "operationId": "list_child_classrooms_v1_children__child_id__classrooms_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChildClassroom"
+                  },
+                  "title": "Response List Child Classrooms V1 Children  Child Id  Classrooms Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "classrooms"
+        ],
+        "summary": "Join Classroom",
+        "description": "Ebeveynin bu çağrıyı yapması, öğretmenin özet veriyi görmesine açık onaydır.",
+        "operationId": "join_classroom_v1_children__child_id__classrooms_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildClassroom"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/children/{child_id}/classrooms/{classroom_id}": {
+      "delete": {
+        "tags": [
+          "classrooms"
+        ],
+        "summary": "Leave Classroom",
+        "description": "Onayı geri çekme: öğretmen bu çocuğun verisini artık göremez.",
+        "operationId": "leave_classroom_v1_children__child_id__classrooms__classroom_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Child Id"
+            }
+          },
+          {
+            "name": "classroom_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Classroom Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/healthz": {
       "get": {
         "summary": "Healthz",
@@ -626,6 +1193,102 @@
   },
   "components": {
     "schemas": {
+      "AttemptRequest": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer"
+        ],
+        "title": "AttemptRequest"
+      },
+      "AttemptResponse": {
+        "properties": {
+          "correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct"
+          },
+          "solved": {
+            "type": "boolean",
+            "title": "Solved"
+          },
+          "feedback": {
+            "type": "string",
+            "title": "Feedback"
+          },
+          "hint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HintOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_request_next": {
+            "type": "boolean",
+            "title": "Can Request Next"
+          },
+          "safety": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SafetyNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "correct",
+          "solved",
+          "feedback",
+          "hint",
+          "can_request_next"
+        ],
+        "title": "AttemptResponse",
+        "description": "Cevap kontrolü. Doğru cevap yanlış denemelerde bilerek açıklanmaz."
+      },
+      "ChildClassroom": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "teacher_name": {
+            "type": "string",
+            "title": "Teacher Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "teacher_name"
+        ],
+        "title": "ChildClassroom"
+      },
       "ChildCreateRequest": {
         "properties": {
           "nickname": {
@@ -794,6 +1457,104 @@
         ],
         "title": "ChildProfileResponse"
       },
+      "ChildSummary": {
+        "properties": {
+          "period_days": {
+            "type": "integer",
+            "title": "Period Days"
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Since"
+          },
+          "problems_started": {
+            "type": "integer",
+            "title": "Problems Started"
+          },
+          "problems_solved": {
+            "type": "integer",
+            "title": "Problems Solved"
+          },
+          "solved_without_hints": {
+            "type": "integer",
+            "title": "Solved Without Hints"
+          },
+          "avg_hints_per_solved": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Hints Per Solved"
+          },
+          "hints_total": {
+            "type": "integer",
+            "title": "Hints Total"
+          },
+          "attempts_total": {
+            "type": "integer",
+            "title": "Attempts Total"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicStat"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "recent": {
+            "items": {
+              "$ref": "#/components/schemas/RecentProblem"
+            },
+            "type": "array",
+            "title": "Recent"
+          },
+          "shows_problem_text": {
+            "type": "boolean",
+            "title": "Shows Problem Text"
+          },
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/SafetyAlert"
+            },
+            "type": "array",
+            "title": "Alerts"
+          },
+          "flags": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Flags"
+          },
+          "answer_requests": {
+            "type": "integer",
+            "title": "Answer Requests"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period_days",
+          "since",
+          "problems_started",
+          "problems_solved",
+          "solved_without_hints",
+          "avg_hints_per_solved",
+          "hints_total",
+          "attempts_total",
+          "topics",
+          "recent",
+          "shows_problem_text",
+          "alerts",
+          "flags",
+          "answer_requests"
+        ],
+        "title": "ChildSummary"
+      },
       "ChildTokenResponse": {
         "properties": {
           "access_token": {
@@ -811,6 +1572,117 @@
           "access_token"
         ],
         "title": "ChildTokenResponse"
+      },
+      "ClassroomCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 12.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "ClassroomCreate"
+      },
+      "ClassroomOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "join_code": {
+            "type": "string",
+            "title": "Join Code"
+          },
+          "student_count": {
+            "type": "integer",
+            "title": "Student Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "grade",
+          "join_code",
+          "student_count"
+        ],
+        "title": "ClassroomOut"
+      },
+      "ClassroomPreview": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "teacher_name": {
+            "type": "string",
+            "title": "Teacher Name"
+          },
+          "teacher_sees": {
+            "type": "string",
+            "title": "Teacher Sees"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "grade",
+          "teacher_name",
+          "teacher_sees"
+        ],
+        "title": "ClassroomPreview",
+        "description": "Ebeveynin katılmadan önce gördüğü bilgi."
       },
       "ConsentRequest": {
         "properties": {
@@ -846,6 +1718,286 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Heatmap": {
+        "properties": {
+          "classroom": {
+            "$ref": "#/components/schemas/ClassroomOut"
+          },
+          "period_days": {
+            "type": "integer",
+            "title": "Period Days"
+          },
+          "max_hints": {
+            "type": "integer",
+            "title": "Max Hints"
+          },
+          "students": {
+            "items": {
+              "$ref": "#/components/schemas/HeatmapStudent"
+            },
+            "type": "array",
+            "title": "Students"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/HeatmapTopic"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/HeatmapCell"
+            },
+            "type": "array",
+            "title": "Cells"
+          }
+        },
+        "type": "object",
+        "required": [
+          "classroom",
+          "period_days",
+          "max_hints",
+          "students",
+          "topics",
+          "cells"
+        ],
+        "title": "Heatmap"
+      },
+      "HeatmapCell": {
+        "properties": {
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "child_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Child Id"
+          },
+          "problems": {
+            "type": "integer",
+            "title": "Problems"
+          },
+          "solved": {
+            "type": "integer",
+            "title": "Solved"
+          },
+          "avg_hints": {
+            "type": "number",
+            "title": "Avg Hints"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic",
+          "child_id",
+          "problems",
+          "solved",
+          "avg_hints"
+        ],
+        "title": "HeatmapCell"
+      },
+      "HeatmapStudent": {
+        "properties": {
+          "child_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Child Id"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "problems": {
+            "type": "integer",
+            "title": "Problems"
+          },
+          "solved": {
+            "type": "integer",
+            "title": "Solved"
+          },
+          "avg_hints": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Hints"
+          },
+          "answer_requests": {
+            "type": "integer",
+            "title": "Answer Requests"
+          }
+        },
+        "type": "object",
+        "required": [
+          "child_id",
+          "nickname",
+          "problems",
+          "solved",
+          "avg_hints",
+          "answer_requests"
+        ],
+        "title": "HeatmapStudent"
+      },
+      "HeatmapTopic": {
+        "properties": {
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "problems": {
+            "type": "integer",
+            "title": "Problems"
+          },
+          "solved": {
+            "type": "integer",
+            "title": "Solved"
+          },
+          "avg_hints": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Hints"
+          },
+          "students": {
+            "type": "integer",
+            "title": "Students"
+          },
+          "struggling": {
+            "type": "integer",
+            "title": "Struggling"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic",
+          "problems",
+          "solved",
+          "avg_hints",
+          "students",
+          "struggling"
+        ],
+        "title": "HeatmapTopic"
+      },
+      "HintOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "level_name": {
+            "type": "string",
+            "title": "Level Name"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "level",
+          "level_name",
+          "text"
+        ],
+        "title": "HintOut",
+        "description": "Öğrenciye giden ipucu. Sızıntı kontrolü ayrıntıları ve gizli çözüm bilerek yoktur."
+      },
+      "HintRequest": {
+        "properties": {
+          "message": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "title": "HintRequest"
+      },
+      "HintResponse": {
+        "properties": {
+          "hint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HintOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_request_next": {
+            "type": "boolean",
+            "title": "Can Request Next"
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notice"
+          },
+          "safety": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SafetyNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "hint",
+          "can_request_next"
+        ],
+        "title": "HintResponse",
+        "description": "Güvenlik kapısı akışı durdurursa `hint` boş, `safety` dolu döner."
+      },
+      "JoinCodeRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 4,
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "JoinCodeRequest"
       },
       "LoginRequest": {
         "properties": {
@@ -913,11 +2065,95 @@
         ],
         "title": "ProblemCreateRequest"
       },
-      "ProblemResponse": {
+      "ProblemDetail": {
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid",
+            "title": "Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Sorunun PII maskelenmiş hali"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "current_hint_level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Hint Level"
+          },
+          "max_hint_level": {
+            "type": "integer",
+            "title": "Max Hint Level"
+          },
+          "can_request_hint": {
+            "type": "boolean",
+            "title": "Can Request Hint"
+          },
+          "hints": {
+            "items": {
+              "$ref": "#/components/schemas/HintOut"
+            },
+            "type": "array",
+            "title": "Hints"
+          },
+          "attempts_count": {
+            "type": "integer",
+            "title": "Attempts Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text",
+          "status",
+          "topic",
+          "state",
+          "current_hint_level",
+          "max_hint_level",
+          "can_request_hint",
+          "hints",
+          "attempts_count"
+        ],
+        "title": "ProblemDetail"
+      },
+      "ProblemResponse": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Id"
           },
           "status": {
@@ -945,6 +2181,27 @@
               }
             ],
             "title": "Topic"
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notice"
+          },
+          "safety": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SafetyNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -955,7 +2212,59 @@
           "topic"
         ],
         "title": "ProblemResponse",
-        "description": "Öğrenciye dönen bilgi. Gizli çözüm, adımlar ve nihai cevap bilerek yoktur."
+        "description": "Öğrenciye dönen bilgi. Gizli çözüm, adımlar ve nihai cevap bilerek yoktur.\n\nGüvenlik kapısı akışı durdurursa soru oluşturulmaz: `id` boş, `status` 'blocked' olur ve\n`safety` sabit destek mesajını taşır (HTTP 200)."
+      },
+      "RecentProblem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "solved": {
+            "type": "boolean",
+            "title": "Solved"
+          },
+          "hints_used": {
+            "type": "integer",
+            "title": "Hints Used"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "topic",
+          "text",
+          "solved",
+          "hints_used",
+          "attempts",
+          "created_at"
+        ],
+        "title": "RecentProblem"
       },
       "RefreshRequest": {
         "properties": {
@@ -1011,6 +2320,80 @@
         ],
         "title": "RegisterRequest"
       },
+      "SafetyAlert": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "guidance": {
+            "type": "string",
+            "title": "Guidance"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "guidance",
+          "created_at"
+        ],
+        "title": "SafetyAlert"
+      },
+      "SafetyNotice": {
+        "properties": {
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "resources": {
+            "items": {
+              "$ref": "#/components/schemas/SupportResourceOut"
+            },
+            "type": "array",
+            "title": "Resources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "category",
+          "message",
+          "resources"
+        ],
+        "title": "SafetyNotice",
+        "description": "Akış durduğunda çocuğa gösterilen sabit mesaj ve yardım hatları."
+      },
+      "SupportResourceOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "phone": {
+            "type": "string",
+            "title": "Phone"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "phone",
+          "note"
+        ],
+        "title": "SupportResourceOut"
+      },
       "TokenResponse": {
         "properties": {
           "access_token": {
@@ -1033,6 +2416,29 @@
           "refresh_token"
         ],
         "title": "TokenResponse"
+      },
+      "TopicStat": {
+        "properties": {
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "problems": {
+            "type": "integer",
+            "title": "Problems"
+          },
+          "solved": {
+            "type": "integer",
+            "title": "Solved"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic",
+          "problems",
+          "solved"
+        ],
+        "title": "TopicStat"
       },
       "ValidationError": {
         "properties": {

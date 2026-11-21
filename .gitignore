@@ -17,6 +17,9 @@ htmlcov/
 .env.*
 !.env.example
 
+# Docker'sız yerel PostgreSQL verisi (scripts/localdb.py)
+.local/
+
 # IDE / OS
 .idea/
 .vscode/

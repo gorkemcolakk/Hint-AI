@@ -7,6 +7,9 @@ export default function Index() {
   if (session?.kind === 'guardian') {
     return <Redirect href="/children" />;
   }
+  if (session?.kind === 'teacher') {
+    return <Redirect href="/classes" />;
+  }
   if (session?.kind === 'child') {
     return <Redirect href="/home" />;
   }

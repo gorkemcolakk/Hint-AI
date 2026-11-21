@@ -49,6 +49,9 @@ export default function RootLayout() {
         <Stack.Protected guard={session?.kind === 'guardian'}>
           <Stack.Screen name="(guardian)" />
         </Stack.Protected>
+        <Stack.Protected guard={session?.kind === 'teacher'}>
+          <Stack.Screen name="(teacher)" />
+        </Stack.Protected>
         <Stack.Protected guard={session?.kind === 'child'}>
           <Stack.Screen name="(child)" />
         </Stack.Protected>

@@ -1,14 +1,13 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-import type { Session } from './session-store';
+import type { AdultKind, Session } from './session-store';
 
 const STORAGE_KEY = 'hintai.session';
 
-/** Cihazda saklanan oturum: ebeveyn için yalnızca yenileme token'ı, çocuk için kısa ömürlü token. */
+/** Cihazda saklanan oturum: yetişkin için yalnızca yenileme token'ı, çocuk için kısa ömürlü token. */
 export type StoredSession =
-  | { kind: 'guardian'; refreshToken: string }
-  | { kind: 'child'; accessToken: string };
+  { kind: AdultKind; refreshToken: string } | { kind: 'child'; accessToken: string };
 
 // Web'de token'lar yalnızca bellekte tutulur (localStorage yok); sayfa yenilenince oturum kapanır.
 let memoryValue: string | null = null;
@@ -31,7 +30,7 @@ function isStoredSession(value: unknown): value is StoredSession {
   if (typeof value !== 'object' || value === null || !('kind' in value)) {
     return false;
   }
-  if (value.kind === 'guardian') {
+  if (value.kind === 'guardian' || value.kind === 'teacher') {
     return 'refreshToken' in value && typeof value.refreshToken === 'string';
   }
   if (value.kind === 'child') {
@@ -55,9 +54,9 @@ export async function loadStoredSession(): Promise<StoredSession | null> {
 
 export async function saveSession(session: Session): Promise<void> {
   const stored: StoredSession =
-    session.kind === 'guardian'
-      ? { kind: 'guardian', refreshToken: session.refreshToken }
-      : { kind: 'child', accessToken: session.accessToken };
+    session.kind === 'child'
+      ? { kind: 'child', accessToken: session.accessToken }
+      : { kind: session.kind, refreshToken: session.refreshToken };
   await write(JSON.stringify(stored));
 }
 

@@ -7,13 +7,21 @@ import pytest_asyncio
 from sqlalchemy import make_url, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+import app.modules.classrooms.models  # noqa: F401
 import app.modules.llm_gateway.models  # noqa: F401
 import app.modules.problems.models  # noqa: F401
+import app.modules.safety.models  # noqa: F401
+import app.modules.tutoring.models  # noqa: F401
 from app.modules.auth_consent.models import Base
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 
 _TABLES = (
+    "enrollments",
+    "classrooms",
+    "moderation_events",
+    "hints",
+    "attempts",
     "problems",
     "hidden_solutions",
     "llm_calls",

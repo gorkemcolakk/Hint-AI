@@ -52,7 +52,9 @@ describe('getAccessToken', () => {
 
   it('reddedilen yenileme token’ı oturumu kapatır', async () => {
     setSession({ kind: 'guardian', accessToken: tokenExpiringIn(10), refreshToken: 'eski' });
-    mockPost.mockResolvedValueOnce(reply(401, { detail: 'Geçersiz veya süresi dolmuş yenileme belirteci' }));
+    mockPost.mockResolvedValueOnce(
+      reply(401, { detail: 'Geçersiz veya süresi dolmuş yenileme belirteci' }),
+    );
 
     await expect(getAccessToken()).resolves.toBeNull();
     expect(currentSession()).toBeNull();
@@ -86,11 +88,17 @@ describe('pairDevice', () => {
   });
 
   it('hatalı kodda mevcut oturuma dokunmaz', async () => {
-    const guardian = { kind: 'guardian' as const, accessToken: tokenExpiringIn(600), refreshToken: 'r1' };
+    const guardian = {
+      kind: 'guardian' as const,
+      accessToken: tokenExpiringIn(600),
+      refreshToken: 'r1',
+    };
     setSession(guardian);
     mockPost.mockResolvedValueOnce(reply(400, { detail: 'Geçersiz kod' }));
 
-    await expect(pairDevice('cocuk-1', '000000')).rejects.toMatchObject({ message: 'Geçersiz kod' });
+    await expect(pairDevice('cocuk-1', '000000')).rejects.toMatchObject({
+      message: 'Geçersiz kod',
+    });
     expect(currentSession()).toEqual(guardian);
   });
 });
@@ -104,5 +112,31 @@ describe('signOut', () => {
 
     expect(mockPost).toHaveBeenCalledWith('/v1/auth/logout', { body: { refresh_token: 'r1' } });
     expect(currentSession()).toBeNull();
+  });
+});
+
+describe('signIn rol yönlendirmesi', () => {
+  function tokenWithRole(role: string): string {
+    const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 600, role }));
+    return `header.${payload.replace(/=+$/, '')}.signature`;
+  }
+
+  it('öğretmen token’ı öğretmen oturumu, ebeveyn token’ı ebeveyn oturumu açar', async () => {
+    const { signIn } = jest.requireActual<typeof import('@/auth/auth')>('@/auth/auth');
+    const teacherToken = tokenWithRole('teacher');
+    mockPost.mockResolvedValueOnce(reply(200, { access_token: teacherToken, refresh_token: 't1' }));
+    await signIn('ogretmen@example.com', 'parola123');
+    expect(currentSession()).toEqual({
+      kind: 'teacher',
+      accessToken: teacherToken,
+      refreshToken: 't1',
+    });
+
+    const guardianToken = tokenWithRole('guardian');
+    mockPost.mockResolvedValueOnce(
+      reply(200, { access_token: guardianToken, refresh_token: 'g1' }),
+    );
+    await signIn('veli@example.com', 'parola123');
+    expect(currentSession()).toMatchObject({ kind: 'guardian' });
   });
 });

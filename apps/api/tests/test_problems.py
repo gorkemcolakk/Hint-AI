@@ -70,7 +70,9 @@ async def test_problem_is_solved_verified_and_answer_never_returned(
     assert body["status"] == "verified"
     assert body["topic"] == "birinci dereceden denklem"
     # Gizli çözüm öğrenciye dönmez: ne adımlar ne nihai cevap yanıtta yer alır.
-    assert set(body) == {"id", "status", "grade", "topic"}
+    assert set(body) == {"id", "status", "grade", "topic", "notice", "safety"}
+    # Soru metninde isim var: maskelenir ve çocuğa nazik bir not gösterilir.
+    assert body["safety"] is None and "gerek yok" in body["notice"]
     assert "çıkar" not in resp.text
 
     problem = await db_session.scalar(select(Problem))

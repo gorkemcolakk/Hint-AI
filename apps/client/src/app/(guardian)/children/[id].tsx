@@ -11,6 +11,8 @@ import { Button } from '@/components/button';
 import { ErrorMessage } from '@/components/error-message';
 import { Screen } from '@/components/screen';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { ChildClassrooms } from '@/features/classrooms/child-classrooms';
+import { ChildSummary } from '@/features/progress/child-summary';
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
@@ -58,6 +60,9 @@ export default function ChildDetailScreen() {
           </Text>
         </View>
       ) : null}
+
+      {id ? <ChildSummary childId={id} /> : null}
+      {id ? <ChildClassrooms childId={id} /> : null}
 
       <Text accessibilityRole="header" style={styles.section}>
         Cihaz eşleştirme

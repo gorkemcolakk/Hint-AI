@@ -4,7 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.health import check_database, check_redis
 from app.modules.auth_consent.router import auth_router, children_router
+from app.modules.classrooms.router import child_classrooms_router, classrooms_router
 from app.modules.problems.router import problems_router
+from app.modules.progress.router import progress_router
+from app.modules.tutoring.router import tutoring_router
 
 app = FastAPI(title=settings.service_name, version="0.1.0")
 
@@ -19,6 +22,16 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(children_router)
 app.include_router(problems_router)
+app.include_router(tutoring_router)
+app.include_router(progress_router)
+app.include_router(classrooms_router)
+app.include_router(child_classrooms_router)
+
+if settings.dev_shortcuts:
+    # Kimlik doğrulamasını atlayan yerel deneme kısayolları; varsayılan kapalı.
+    from app.modules.dev.router import dev_router
+
+    app.include_router(dev_router)
 
 
 @app.get("/healthz")

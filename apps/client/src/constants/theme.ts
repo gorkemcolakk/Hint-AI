@@ -9,6 +9,8 @@ export const Colors = {
   // Ebeveyn paneli ve çocuk modu görsel olarak ayrışır (Bölüm 5.7); ikisi de beyaz metinle AA kontrastında.
   guardian: '#1F4E8C',
   child: '#0F766E',
+  // Öğretmen paneli de görsel olarak ayrışır (Bölüm 5.7); beyaz metinle AA kontrastında.
+  teacher: '#5B2C83',
 } as const;
 
 export const Spacing = {
