@@ -1,4 +1,6 @@
-from pydantic import AliasChoices, Field, field_validator
+from typing import Self
+
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LLM_PROVIDERS = ("mock", "demo", "http", "gemini", "openai")
@@ -79,6 +81,13 @@ class Settings(BaseSettings):
         if normalized not in LLM_PROVIDERS:
             raise ValueError(f"LLM_PROVIDER şunlardan biri olmalı: {', '.join(LLM_PROVIDERS)}")
         return normalized
+
+    @model_validator(mode="after")
+    def _dev_shortcuts_only_local(self) -> Self:
+        # Kimlik doğrulamasını atlayan demo girişleri yalnızca yerel ortamda açılabilir.
+        if self.dev_shortcuts and self.environment != "local":
+            raise ValueError("HINT_DEV_SHORTCUTS yalnızca HINT_ENVIRONMENT=local iken açılabilir")
+        return self
 
 
 settings = Settings()

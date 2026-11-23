@@ -24,7 +24,7 @@ from app.modules.llm_gateway.mask import mask_pii
 from app.modules.llm_gateway.providers import ConsentRequiredError, LLMError
 from app.modules.llm_gateway.service import LLMGatewayService
 from app.modules.problems.models import HiddenSolution, Problem
-from app.modules.problems.verify import answers_match, parse_answers
+from app.modules.problems.verify import answers_match, parse_answers, sympy_answer
 from app.modules.safety.models import record_event
 from app.modules.safety.output import check_output
 from app.modules.tutoring import ladder
@@ -62,6 +62,24 @@ async def load_solution(db: AsyncSession, problem: Problem) -> HiddenSolution | 
     return cast(HiddenSolution | None, await db.get(HiddenSolution, problem.solution_id))
 
 
+def answer_key(problem: Problem, solution: HiddenSolution) -> str:
+    """Öğrencinin cevabının karşılaştırılacağı değer.
+
+    SymPy modelle çeliştiyse (low_confidence) modelin cevabı muhtemelen yanlıştır; SymPy'ın
+    bağımsız bulduğu sonuç kullanılır.
+    """
+    if problem.status == "low_confidence":
+        return sympy_answer(solution.sympy_check) or solution.final_answer
+    return solution.final_answer
+
+
+def forbidden_answers(problem: Problem, solution: HiddenSolution) -> str:
+    """İpucunda geçmemesi gereken cevaplar: düşük güvenli soruda hem modelin hem SymPy'ın
+    cevabı; yalnızca modelinkini yasaklamak gerçek cevabın sızmasına izin verirdi."""
+    computed = sympy_answer(solution.sympy_check) if problem.status == "low_confidence" else None
+    return f"{solution.final_answer}; {computed}" if computed else solution.final_answer
+
+
 async def list_hints(db: AsyncSession, problem_id: uuid.UUID) -> list[Hint]:
     rows = await db.scalars(
         select(Hint).where(Hint.problem_id == problem_id).order_by(Hint.created_at, Hint.level)
@@ -95,7 +113,7 @@ async def _generate_hint_text(
     request = ladder.build_hint_request(
         problem_text=problem.masked_text,
         steps=solution.steps,
-        final_answer=solution.final_answer,
+        final_answer=forbidden_answers(problem, solution),
         level=level,
         age_band=child.age_band,
         previous_hints=previous,
@@ -142,7 +160,7 @@ async def _generate_hint_text(
         leak = check_hint(
             text,
             level=level,
-            final_answer=solution.final_answer,
+            final_answer=forbidden_answers(problem, solution),
             steps=solution.steps,
             problem_text=problem.masked_text,
         )
@@ -169,7 +187,7 @@ async def _generate_hint_text(
             db,
             child_id=child.id,
             problem_text=problem.masked_text,
-            final_answer=solution.final_answer,
+            final_answer=forbidden_answers(problem, solution),
             steps=solution.steps,
             level=level,
             hint=text,
@@ -241,7 +259,7 @@ async def _give_hint(
             safe = check_hint(
                 text,
                 level=level,
-                final_answer=solution.final_answer,
+                final_answer=forbidden_answers(problem, solution),
                 steps=solution.steps,
                 problem_text=problem.masked_text,
             )
@@ -318,12 +336,12 @@ async def submit_attempt(
     is_correct: bool | None = None
     if solution is not None:
         try:
-            expected_count = len(parse_answers(solution.final_answer))
+            expected_count = len(parse_answers(answer_key(problem, solution)))
         except Exception:
             expected_count = 1
         normalized = normalize_student_answer(masked, expected_count)
         if normalized is not None:
-            is_correct = answers_match(solution.final_answer, normalized)
+            is_correct = answers_match(answer_key(problem, solution), normalized)
 
     attempt = Attempt(problem_id=problem.id, answer_masked=masked, is_correct=is_correct)
     db.add(attempt)

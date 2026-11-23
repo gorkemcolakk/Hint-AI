@@ -110,24 +110,41 @@ def answers_match(expected: str, actual: str) -> bool:
     return len(left) == len(right) and all(any(_same(a, b) for b in right) for a in left)
 
 
+def _expected_values(check: Mapping[str, Any]) -> list[Any]:
+    """SymPy kontrolünden bağımsız sonucu hesaplar; biçim geçersizse ValueError fırlatır."""
+    kind = check.get("type")
+    if kind == "solve":
+        equation = str(check.get("equation", ""))
+        variable = str(check.get("variable", ""))
+        if equation.count("=") != 1 or not re.fullmatch(r"[A-Za-z]", variable):
+            raise ValueError("denklem biçimi geçersiz")
+        lhs, rhs = (parse_math(side) for side in equation.split("="))
+        return list(sympy.solve(sympy.Eq(lhs, rhs), sympy.Symbol(variable)))
+    if kind == "evaluate":
+        return [parse_math(str(check.get("expression", "")))]
+    raise ValueError(f"bilinmeyen kontrol türü: {kind}")
+
+
+def sympy_answer(check: Mapping[str, Any] | None) -> str | None:
+    """SymPy'ın bağımsız bulduğu cevap ('5' ya da '7; -7'); hesaplanamazsa None."""
+    if not check:
+        return None
+    try:
+        values = _expected_values(check)
+    except Exception:
+        return None
+    return "; ".join(str(value) for value in values) if values else None
+
+
 def verify_solution(check: Mapping[str, Any] | None, final_answer: str) -> VerificationResult:
     """Çözümün nihai cevabını SymPy ile bağımsız olarak hesaplanan sonuçla karşılaştırır."""
     if not check:
         return VerificationResult("unverifiable", "SymPy kontrolü tanımlanmamış")
     try:
         answers = parse_answers(final_answer)
-        kind = check.get("type")
-        if kind == "solve":
-            equation = str(check.get("equation", ""))
-            variable = str(check.get("variable", ""))
-            if equation.count("=") != 1 or not re.fullmatch(r"[A-Za-z]", variable):
-                return VerificationResult("unverifiable", "denklem biçimi geçersiz")
-            lhs, rhs = (parse_math(side) for side in equation.split("="))
-            expected = sympy.solve(sympy.Eq(lhs, rhs), sympy.Symbol(variable))
-        elif kind == "evaluate":
-            expected = [parse_math(str(check.get("expression", "")))]
-        else:
-            return VerificationResult("unverifiable", f"bilinmeyen kontrol türü: {kind}")
+        expected = _expected_values(check)
+    except ValueError as exc:
+        return VerificationResult("unverifiable", str(exc))
     except Exception as exc:
         return VerificationResult("unverifiable", f"ayrıştırılamadı: {type(exc).__name__}")
 

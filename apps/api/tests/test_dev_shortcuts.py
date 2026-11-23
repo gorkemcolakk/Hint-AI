@@ -1,7 +1,9 @@
 """Yerel deneme kısayolları: varsayılan kapalı, şemada görünmez, açıkken demo oturumu verir."""
 
 import httpx
+import pytest
 from fastapi import FastAPI
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
@@ -13,6 +15,13 @@ from app.modules.dev.router import dev_router
 
 def test_dev_shortcuts_are_off_by_default() -> None:
     assert Settings(_env_file=None).dev_shortcuts is False
+
+
+def test_dev_shortcuts_refuse_non_local_environment() -> None:
+    # Kimlik doğrulamasını atlayan kısayollar canlı/staging ortamında uygulamayı başlatmamalı.
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, dev_shortcuts=True, environment="production")
+    assert Settings(_env_file=None, dev_shortcuts=True, environment="local").dev_shortcuts
 
 
 def test_dev_routes_are_not_in_openapi_schema() -> None:
