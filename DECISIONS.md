@@ -42,7 +42,7 @@
 | M3-4 | Çözüm önbelleği | Normalleştirilmiş maskeli soru hash'i → yalnızca doğrulanmış çözümler yeniden kullanılır; önbellek öğrenci verisi içermez | 2026-11-16 | BM-1 |
 | M3-5 | Soru saklama | Soru metni yalnızca PII maskelenmiş haliyle `problems` tablosunda; gizli çözüm ayrı tabloda ve API yanıtlarında yok | 2026-11-16 | BM-1 |
 | M3-6 | Model ve ölçüm | `gemini-3.6-flash` (2.5-flash yeni kullanıcılara kapalı; 3.7/3.8 yoğunluktan yanıt vermedi), zaman aşımı 90 sn. Ücretli katmana geçilmeyecek; M3 ücretsiz kotayla yapılan kısmi ölçümle (22/22 doğru) kapatıldı | 2026-11-16 | BM-1 |
-| P-1 | Sıralama | M4–M8 "dikey dilim" olarak: ucuz deterministik güvenlik ilk ipucundan itibaren, LLM yargıç/kriz akışı gerçek çocuk kapısı. Ayrıntı: docs/mvp-plan.md | 2026-11-21 | Prototip — ekip onayı bekliyor |
+| P-1 | Sıralama | M4–M8 "dikey dilim" olarak: ucuz deterministik güvenlik ilk ipucundan itibaren, LLM yargıç/kriz akışı gerçek çocuk kapısı. Ayrıntı: docs/mvp-plan.md (2026-11-23: kabul edildi; M4–M8 yerine A0–A5 aşamaları izlenir) | 2026-11-21 | BM-1 + Okan |
 | P-2 | Docker'sız yerel ortam | PostgreSQL venv içindeki `pixeltable-pgserver` ile (`scripts/localdb.py`); Redis boşsa `/readyz` atlar. Compose ve CI değişmedi | 2026-11-21 | Prototip |
 | P-3 | Demo LLM ve kısayollar | `LLM_PROVIDER=demo` kotasız kurallı sahte model; `HINT_DEV_SHORTCUTS` (varsayılan **false**) eşleştirmesiz demo oturumu açar, OpenAPI'de görünmez | 2026-11-21 | Prototip |
 | P-4 | İpucu merdiveni | L0–L4, L5 kapalı (D4 bekliyor); ilk ipucu L0, zorlanma ifadesi L1; 2 yanlış denemede otomatik yükselme; doğrulanamayan soruda en fazla L2, çözüm yoksa L1 + hazır ipucu | 2026-11-21 | Prototip |
