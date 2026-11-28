@@ -34,8 +34,12 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("LLM_BASE_URL", "HINT_LLM_BASE_URL", "llm_base_url"),
     )
     llm_model: str = Field(
-        default="gemini-3.6-flash",
+        default="gemini-2.5-flash",
         validation_alias=AliasChoices("LLM_MODEL", "HINT_LLM_MODEL", "llm_model"),
+    )
+    llm_judge_model: str = Field(
+        default="",
+        validation_alias=AliasChoices("LLM_JUDGE_MODEL", "HINT_LLM_JUDGE_MODEL", "llm_judge_model"),
     )
     llm_api_key: str = Field(
         default="",

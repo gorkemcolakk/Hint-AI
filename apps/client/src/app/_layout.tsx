@@ -7,6 +7,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { restoreSession } from '@/auth/auth';
 import { useSessionState } from '@/auth/session-store';
 import { Colors } from '@/constants/theme';
+import { resetChildUiState } from '@/features/tutoring/reading-preferences';
 
 export default function RootLayout() {
   const [queryClient] = useState(
@@ -23,6 +24,7 @@ export default function RootLayout() {
   // Oturum türü değişince (çıkış, başka hesap, çocuk moduna geçiş) önbellekteki veriler silinir.
   useEffect(() => {
     queryClient.clear();
+    resetChildUiState();
   }, [sessionKind, queryClient]);
 
   if (state.status === 'loading') {

@@ -14,7 +14,7 @@ from app.modules.llm_gateway.providers import (
     LLMError,
 )
 from app.modules.llm_gateway.service import LLMGatewayService
-from app.modules.problems.service import create_problem
+from app.modules.problems.service import DailyProblemLimitExceededError, create_problem
 from app.modules.safety.service import SafetyNotice, screen_input
 
 problems_router = APIRouter(prefix="/v1/problems", tags=["problems"])
@@ -64,15 +64,18 @@ async def submit_problem(
             id=None, status="blocked", grade=None, topic=None, safety=screening.safety
         )
     try:
-        problem, solution = await create_problem(db, child.id, text, gateway)
+        problem, solution = await create_problem(
+            db, child.id, text, gateway, daily_limit=child.daily_new_problem_limit
+        )
     except ConsentRequiredError:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
             "Yapay zekâ ile işleme izni yok. Ebeveyninden bu izni vermesini iste.",
         ) from None
-    except DailyLimitExceededError:
+    except (DailyLimitExceededError, DailyProblemLimitExceededError):
         raise HTTPException(
-            status.HTTP_429_TOO_MANY_REQUESTS, "Bugünlük soru hakkın doldu, yarın devam edelim."
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            "Bugünlük yeni soru hakkın doldu, yarın devam edelim.",
         ) from None
     except LLMError:
         raise HTTPException(

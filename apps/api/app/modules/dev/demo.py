@@ -100,6 +100,10 @@ async def ensure_demo_family(db: AsyncSession) -> tuple[models.User, models.Chil
     """Demo ebeveyni ve çocuğu yoksa oluşturur, varsa olanları döner."""
     guardian = await _ensure_user(db, DEMO_EMAIL, "guardian", "Demo Ebeveyn")
     child = await _ensure_child(db, guardian, DEMO_CHILD_NICKNAME)
+    if child.daily_new_problem_limit < 25:
+        child.daily_new_problem_limit = 50
+        await db.commit()
+        await db.refresh(child)
     return guardian, child
 
 

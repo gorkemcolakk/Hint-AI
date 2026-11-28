@@ -196,6 +196,12 @@ async def update_child(
     return child
 
 
+async def delete_child(db: AsyncSession, guardian: models.User, child_id: uuid.UUID) -> None:
+    child = await get_owned_child(db, guardian, child_id)
+    await db.delete(child)
+    await db.commit()
+
+
 async def set_consents(
     db: AsyncSession, guardian: models.User, child_id: uuid.UUID, data: schemas.ConsentRequest
 ) -> None:

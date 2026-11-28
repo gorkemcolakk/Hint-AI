@@ -3,26 +3,31 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.health import check_database, check_redis
+from app.core.observability import StructuredLoggingMiddleware
 from app.modules.auth_consent.router import auth_router, children_router
 from app.modules.classrooms.router import child_classrooms_router, classrooms_router
 from app.modules.problems.router import problems_router
 from app.modules.progress.router import progress_router
-from app.modules.tutoring.router import tutoring_router
+from app.modules.tutoring.router import hints_router, tutoring_router
 
 app = FastAPI(title=settings.service_name, version="0.1.0")
+
+app.add_middleware(StructuredLoggingMiddleware)
 
 # Kimlik Bearer header ile taşınır, cookie yok; bu yüzden credentials kapalı.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Request-ID"],
+    expose_headers=["X-Request-ID"],
 )
 
 app.include_router(auth_router)
 app.include_router(children_router)
 app.include_router(problems_router)
 app.include_router(tutoring_router)
+app.include_router(hints_router)
 app.include_router(progress_router)
 app.include_router(classrooms_router)
 app.include_router(child_classrooms_router)

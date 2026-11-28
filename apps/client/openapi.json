@@ -434,6 +434,45 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "children"
+        ],
+        "summary": "Delete Child Endpoint",
+        "operationId": "delete_child_endpoint_v1_children__child_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/children/{child_id}/consents": {
@@ -745,6 +784,64 @@
         }
       }
     },
+    "/v1/hints/{hint_id}/feedback": {
+      "post": {
+        "tags": [
+          "tutoring"
+        ],
+        "summary": "Submit Hint Feedback",
+        "operationId": "submit_hint_feedback_v1_hints__hint_id__feedback_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hint_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Hint Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HintFeedbackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HintFeedbackResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/children/{child_id}/summary": {
       "get": {
         "tags": [
@@ -789,6 +886,55 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ChildSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/children/{child_id}/export": {
+      "get": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "Export Child Data",
+        "description": "Ebeveynin kendi çocuğuna ait KVKK veri taşınabilirliği paketi.",
+        "operationId": "export_child_data_v1_children__child_id__export_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "child_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Child Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildDataExport"
                 }
               }
             }
@@ -1325,6 +1471,53 @@
         ],
         "title": "ChildCreateRequest"
       },
+      "ChildDataExport": {
+        "properties": {
+          "exported_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Exported At"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ChildProfileResponse"
+          },
+          "shows_problem_text": {
+            "type": "boolean",
+            "title": "Shows Problem Text"
+          },
+          "consents": {
+            "items": {
+              "$ref": "#/components/schemas/ConsentExportItem"
+            },
+            "type": "array",
+            "title": "Consents"
+          },
+          "classrooms": {
+            "items": {
+              "$ref": "#/components/schemas/ClassroomExportItem"
+            },
+            "type": "array",
+            "title": "Classrooms"
+          },
+          "problems": {
+            "items": {
+              "$ref": "#/components/schemas/ProblemExportItem"
+            },
+            "type": "array",
+            "title": "Problems"
+          }
+        },
+        "type": "object",
+        "required": [
+          "exported_at",
+          "profile",
+          "shows_problem_text",
+          "consents",
+          "classrooms",
+          "problems"
+        ],
+        "title": "ChildDataExport"
+      },
       "ChildPairRequest": {
         "properties": {
           "child_id": {
@@ -1601,6 +1794,50 @@
         ],
         "title": "ClassroomCreate"
       },
+      "ClassroomExportItem": {
+        "properties": {
+          "classroom_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Classroom Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "approved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "classroom_id",
+          "name",
+          "grade",
+          "approved_at"
+        ],
+        "title": "ClassroomExportItem"
+      },
       "ClassroomOut": {
         "properties": {
           "id": {
@@ -1683,6 +1920,48 @@
         ],
         "title": "ClassroomPreview",
         "description": "Ebeveynin katılmadan önce gördüğü bilgi."
+      },
+      "ConsentExportItem": {
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "title": "Purpose"
+          },
+          "policy_version": {
+            "type": "string",
+            "title": "Policy Version"
+          },
+          "granted": {
+            "type": "boolean",
+            "title": "Granted"
+          },
+          "granted_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Granted At"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "purpose",
+          "policy_version",
+          "granted",
+          "granted_at",
+          "revoked_at"
+        ],
+        "title": "ConsentExportItem"
       },
       "ConsentRequest": {
         "properties": {
@@ -1889,6 +2168,38 @@
           "struggling"
         ],
         "title": "HeatmapTopic"
+      },
+      "HintFeedbackRequest": {
+        "properties": {
+          "helpful": {
+            "type": "boolean",
+            "title": "Helpful"
+          }
+        },
+        "type": "object",
+        "required": [
+          "helpful"
+        ],
+        "title": "HintFeedbackRequest"
+      },
+      "HintFeedbackResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "helpful": {
+            "type": "boolean",
+            "title": "Helpful"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "helpful"
+        ],
+        "title": "HintFeedbackResponse"
       },
       "HintOut": {
         "properties": {
@@ -2141,6 +2452,76 @@
           "attempts_count"
         ],
         "title": "ProblemDetail"
+      },
+      "ProblemExportItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "hints_used": {
+            "type": "integer",
+            "title": "Hints Used"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "solved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solved At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "topic",
+          "text",
+          "status",
+          "state",
+          "hints_used",
+          "attempts",
+          "created_at",
+          "solved_at"
+        ],
+        "title": "ProblemExportItem"
       },
       "ProblemResponse": {
         "properties": {

@@ -1,4 +1,4 @@
-﻿# Docker'sız yerel geliştirme komutları (make yerine). Repo kökünden:
+# Docker'sız yerel geliştirme komutları (make yerine). Repo kökünden:
 #   powershell -ExecutionPolicy Bypass -File scripts\dev.ps1 <komut>
 #
 #   setup  venv + Python bağımlılıkları + npm paketleri (ilk kurulumda bir kez)
@@ -80,6 +80,15 @@ switch ($Command) {
             Invoke-Checked { npm run typecheck }
         } finally { Pop-Location }
     }
+    'eval' {
+        Push-Location $Api
+        try {
+            Invoke-Checked { & $Py -m evals.run_pii_eval }
+            Invoke-Checked { & $Py -m evals.run_safety_eval }
+            Invoke-Checked { & $Py -m evals.run_solution_eval }
+            Invoke-Checked { & $Py -m evals.run_hint_eval --limit 10 }
+        } finally { Pop-Location }
+    }
     'stop' { & $Py (Join-Path $Root 'scripts\localdb.py') stop }
-    default { throw "Bilinmeyen komut: $Command (setup|db|seed|api|web|test|lint|stop)" }
+    default { throw "Bilinmeyen komut: $Command (setup|db|seed|api|web|test|lint|eval|stop)" }
 }

@@ -1,11 +1,12 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.db import get_db
+from app.core.rate_limit import client_ip, rate_limiter
 from app.core.security import create_access_token
 from app.modules.auth_consent import schemas
 from app.modules.auth_consent.deps import get_current_child, get_current_guardian
@@ -14,6 +15,7 @@ from app.modules.auth_consent.service import (
     authenticate_user,
     create_child,
     create_pairing_code,
+    delete_child,
     get_owned_child,
     issue_tokens,
     list_owned_children,
@@ -46,13 +48,17 @@ def _to_child_response(child: ChildProfile) -> schemas.ChildProfileResponse:
 
 
 @auth_router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(data: schemas.RegisterRequest, db: Db) -> dict[str, str]:
+async def register(data: schemas.RegisterRequest, request: Request, db: Db) -> dict[str, str]:
+    await rate_limiter.check(f"register:{client_ip(request)}", limit=10, window_seconds=60)
     user = await register_user(db, data)
     return {"id": str(user.id), "email": user.email, "role": user.role}
 
 
 @auth_router.post("/login", response_model=schemas.TokenResponse)
-async def login(data: schemas.LoginRequest, db: Db) -> schemas.TokenResponse:
+async def login(data: schemas.LoginRequest, request: Request, db: Db) -> schemas.TokenResponse:
+    ip = client_ip(request)
+    await rate_limiter.check(f"login-ip:{ip}", limit=20, window_seconds=60)
+    await rate_limiter.check(f"login:{ip}:{data.email.lower()}", limit=10, window_seconds=60)
     user = await authenticate_user(db, data.email, data.password)
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "E-posta veya parola hatalı")
@@ -76,7 +82,10 @@ async def verify_email() -> dict[str, str]:
 
 
 @auth_router.post("/child-pair", response_model=schemas.ChildTokenResponse)
-async def child_pair(data: schemas.ChildPairRequest, db: Db) -> schemas.ChildTokenResponse:
+async def child_pair(
+    data: schemas.ChildPairRequest, request: Request, db: Db
+) -> schemas.ChildTokenResponse:
+    await rate_limiter.check(f"pair:{client_ip(request)}", limit=15, window_seconds=60)
     child = await redeem_pairing_code(db, data.child_id, data.code)
     access = create_access_token(str(child.id), "child", settings.child_token_ttl_minutes)
     return schemas.ChildTokenResponse(access_token=access)
@@ -119,6 +128,11 @@ async def patch_child(
 ) -> schemas.ChildProfileResponse:
     child = await update_child(db, guardian, child_id, data)
     return _to_child_response(child)
+
+
+@children_router.delete("/{child_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_child_endpoint(child_id: uuid.UUID, guardian: Guardian, db: Db) -> None:
+    await delete_child(db, guardian, child_id)
 
 
 @children_router.post("/{child_id}/consents", status_code=status.HTTP_204_NO_CONTENT)

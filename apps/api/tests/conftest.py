@@ -12,6 +12,7 @@ import app.modules.llm_gateway.models  # noqa: F401
 import app.modules.problems.models  # noqa: F401
 import app.modules.safety.models  # noqa: F401
 import app.modules.tutoring.models  # noqa: F401
+from app.core.rate_limit import rate_limiter
 from app.modules.auth_consent.models import Base
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
@@ -68,6 +69,7 @@ async def db_session() -> AsyncIterator[AsyncSession]:
         await conn.run_sync(Base.metadata.create_all)
     factory = async_sessionmaker(engine, expire_on_commit=False)
     async with factory() as session:
+        rate_limiter.reset()
         for table in _TABLES:
             await session.execute(text(f"TRUNCATE TABLE {table} CASCADE"))
         await session.commit()
