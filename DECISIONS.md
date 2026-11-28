@@ -8,7 +8,7 @@
 | D8 | Backend çatısı | FastAPI | 2026-10-16 | BM-1 |
 | M0-1 | PostgreSQL sürücüsü | psycopg 3 (binary); SQLAlchemy/asyncpg M2+ ile gerekince eklenir | 2026-10-16 | BM-1 |
 | M0-2 | Postgres imajı | postgres:16-alpine; pgvector ihtiyacında pgvector/pgvector:pg16'ya geçilir | 2026-10-16 | BM-1 |
-| M1-1 | Login/register brute-force sınırlaması | TODO: M1'e alınmadı; rate limit sonraki milestone'da eklenecek | 2026-10-16 | BM-1 |
+| M1-1 | Login/register brute-force sınırlaması | A5'te tamamlandı (`app/core/rate_limit.py`: kayan pencere, Redis varsa Redis yoksa bellek içi; login/register/child-pair `429`) | 2026-11-28 | BM-1 |
 | M1-2 | Refresh token | Opaque token; SHA-256 hash'i `refresh_tokens` tablosunda; logout'ta iptal, refresh'te rotasyon | 2026-10-16 | BM-1 |
 | M1-3 | Pairing kodu | Kod SHA-256 hash olarak saklanır; 10 dk geçerlilik; kod başına en fazla 5 hatalı deneme | 2026-10-16 | BM-1 |
 | M1-4 | Çocuk tokenı | Kısa ömürlü (30 dk, refresh yok); her istekte `purpose='service'` rızası kontrol edilir | 2026-10-16 | BM-1 |
@@ -51,3 +51,7 @@
 | P-7 | İstismar bildirimi | `abuse_disclosure` olayları ebeveyne **gösterilmez** (zarar veren ebeveyn olabilir), yalnızca insan incelemesi için kaydedilir; kendine zarar uyarıları ebeveyne gösterilir. Bölüm 10.2 gereği hukukla kesinleşmeli | 2026-11-21 | ⚠️ Hukuk/uzman onayı gerekli |
 | P-8 | Ebeveyn özeti gizliliği | Varsayılan `summary_only`: konu ve sayılar; soru metni yalnızca `full_transcript` iken (maskeli) | 2026-11-21 | Prototip |
 | P-9 | Öğretmen erişimi | Velinin davet koduyla katılması = açık onay (önce "öğretmen neleri görür" önizlemesi); öğretmen yalnızca onaylı çocukların takma adını ve konu bazlı sayıları görür; soru/ipucu metni ve güvenlik uyarısı görmez. Konu adları modelden, MEB eşlemesi yok | 2026-11-21 | Prototip |
+| A5-1 | Somut ipucu merdiveni (`hint_v3` + `judge_v3`) | L0–L2 sorunun gerçek sayılarıyla yönlendirir; L3 son işlemden bir önceki ara sonucu açıkça verip tek son işlemi öğrenciye bırakır; L4 tam çözümlü ikiz örnek kurar. Düşünme modelleri için token sınırı 2048+, yargıç için isteğe bağlı `LLM_JUDGE_MODEL` (`gemini-3.5-flash-lite`) eklendi | 2026-11-28 | BM-1 |
+| A5-2 | Sızıntı doğrulamalı SSE akışı | `POST /v1/problems/{id}/hints` `Accept: text/event-stream` geldiğinde önce kural + çıktı güvenliği + LLM yargıç kontrollerini tamamlar, yalnızca onaylanmış ipucunu `delta` + `hint` SSE olaylarıyla akıtır (doğrulanmamış token asla istemciye gitmez) | 2026-11-28 | BM-1 + BM-2 |
+| A5-3 | KVKK hakları, günlük soru sınırı ve geri bildirim | `GET /v1/children/{id}/export` (`privacy_level` ve `GUARDIAN_HIDDEN_CATEGORIES` kurallarına uyar), `DELETE /v1/children/{id}` (`CASCADE` silme + `llm_calls` anonimleştirme), `POST /v1/hints/{id}/feedback` ve `POST /v1/problems` üzerinde `daily_new_problem_limit` (`429`) eklendi | 2026-11-28 | BM-1 + BM-2 |
+| A5-4 | Gözlemlenebilirlik ve CI eval | İstek/yanıt gövdesi ve sorgu dizgisi loglamayan JSON `StructuredLoggingMiddleware` (`X-Request-ID`), `docs/runbooks.md` ve CI'da deterministik `pii` + `safety` + `solution` + `hint` eval smoke adımları eklendi | 2026-11-28 | BM-1 |

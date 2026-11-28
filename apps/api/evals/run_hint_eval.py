@@ -22,6 +22,7 @@ import sys
 from collections import Counter
 from typing import Any
 
+from app.core.config import settings
 from app.modules.llm_gateway.demo import DemoLLMProvider, solve_text
 from app.modules.llm_gateway.mask import mask_pii
 from app.modules.llm_gateway.providers import LLMError
@@ -49,7 +50,7 @@ async def _hint(gateway: LLMGatewayService, request: str) -> str:
         system_prompt=load_prompt(HINT_PROMPT),
         prompt_version=HINT_PROMPT,
         temperature=0.7,
-        max_tokens=1024,
+        max_tokens=2048,
     )
     return ladder.clean_hint(result.content)
 
@@ -61,8 +62,9 @@ async def _judge(gateway: LLMGatewayService, **fields: Any) -> JudgeVerdict:
             purpose="eval",
             system_prompt=load_prompt(JUDGE_PROMPT),
             prompt_version=JUDGE_PROMPT,
+            model_override=settings.llm_judge_model.strip() or None,
             temperature=0.0,
-            max_tokens=768,
+            max_tokens=2048,
         )
     except LLMError as exc:
         return JudgeVerdict(True, f"judge_error:{type(exc).__name__}", 3, error=True)

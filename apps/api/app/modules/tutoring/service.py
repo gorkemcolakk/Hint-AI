@@ -33,7 +33,8 @@ from app.modules.tutoring.leak import check_hint
 from app.modules.tutoring.models import Attempt, Hint
 from app.prompts import load_prompt
 
-HINT_PROMPT = "hint_v2"
+HINT_PROMPT = "hint_v3"
+HINT_MAX_TOKENS = 2048
 MAX_HINT_GENERATIONS = 3
 # Her yargıç reddi 2 çağrıya mal olur (ipucu + yargıç); kotayı korumak için sınırlı.
 MAX_JUDGE_REJECTIONS = 2
@@ -142,8 +143,8 @@ async def _generate_hint_text(
                 child_id=child.id,
                 db=db,
                 temperature=0.7,
-                # Gemini 3.x düşünme token'larını da bu sınırdan düşer; küçük sınır yanıtı keser.
-                max_tokens=1024,
+                # Düşünme token'ları da bu sınırdan düşer; küçük sınır yanıtı keser.
+                max_tokens=HINT_MAX_TOKENS,
             )
         except ConsentRequiredError:
             raise
@@ -219,11 +220,14 @@ async def _give_hint(
     gateway: LLMGatewayService,
 ) -> Hint:
     solution = await load_solution(db, problem)
-    frustrated = ladder.is_frustrated(student_message)
+    raw_frustrated = ladder.is_frustrated(student_message)
     level = ladder.next_level(
-        problem.current_hint_level, status=problem.status, frustrated=frustrated
+        problem.current_hint_level, status=problem.status, frustrated=raw_frustrated
     )
     previous = [hint.content for hint in await list_hints(db, problem.id)]
+    # Aynı destek cümlesinin her basamakta robotik biçimde tekrarlanmasını önle.
+    already_supported = any(ladder.SUPPORT_LINE in prev for prev in previous)
+    show_support = raw_frustrated and not already_supported
     masked_message = str(mask_pii(student_message).masked_text) if student_message else None
 
     text: str | None = None
@@ -243,7 +247,7 @@ async def _give_hint(
             level=level,
             previous=previous,
             student_message=masked_message,
-            frustrated=frustrated,
+            frustrated=show_support,
             gateway=gateway,
         )
 
@@ -252,19 +256,27 @@ async def _give_hint(
         source = "fallback"
         kind = ladder.problem_kind(problem.masked_text, solution.sympy_check if solution else None)
         text = ladder.fallback_hint(
-            level, topic=solution.topic if solution else None, support=frustrated, kind=kind
+            level, topic=solution.topic if solution else None, support=show_support, kind=kind
         )
         if solution is not None:
-            # Hazır ipucu da (konu adı modelden geldiği için) kontrolden geçer.
-            safe = check_hint(
+            # L4'te önce sızıntısız somut ikiz örnekleri, sonra rakamsız yedeği dene.
+            candidates = (
+                ladder.worked_l4_candidates(kind, support=show_support) if level == 4 else []
+            ) + [
                 text,
-                level=level,
-                final_answer=forbidden_answers(problem, solution),
-                steps=solution.steps,
-                problem_text=problem.masked_text,
-            )
-            if not safe.ok:
-                text = ladder.fallback_hint(level, topic=None, support=frustrated, kind=kind)
+                ladder.fallback_hint(level, topic=None, support=show_support, kind=kind),
+            ]
+            for candidate in candidates:
+                safe = check_hint(
+                    candidate,
+                    level=level,
+                    final_answer=forbidden_answers(problem, solution),
+                    steps=solution.steps,
+                    problem_text=problem.masked_text,
+                )
+                if safe.ok:
+                    text = candidate
+                    break
         if level >= ladder.max_level_for(problem.status) and problem.status != "verified":
             text = f"{text} {ladder.UNVERIFIED_NOTE}"
 
@@ -400,3 +412,23 @@ async def _wrong_attempts_since_last_hint(db: AsyncSession, problem: Problem) ->
     if last_hint_at is not None:
         query = query.where(Attempt.created_at > last_hint_at)
     return int(await db.scalar(query) or 0)
+
+
+async def set_hint_feedback(
+    db: AsyncSession, child_id: uuid.UUID, hint_id: uuid.UUID, helpful: bool
+) -> Hint:
+    """Öğrencinin kendi sorusuna ait ipucuna faydalı/anlaşılmadı geri bildirimi kaydeder."""
+    row = (
+        await db.execute(
+            select(Hint, Problem.child_id)
+            .join(Problem, Problem.id == Hint.problem_id)
+            .where(Hint.id == hint_id)
+        )
+    ).first()
+    if row is None or row[1] != child_id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "İpucu bulunamadı")
+    hint = row[0]
+    hint.helpful = helpful
+    await db.commit()
+    await db.refresh(hint)
+    return hint

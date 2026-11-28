@@ -1,25 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  Share,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { api } from '@/api/client';
 import { describeError, unwrap } from '@/api/errors';
 import { Button } from '@/components/button';
+import { CopyButton } from '@/components/copy-button';
 import { ErrorMessage } from '@/components/error-message';
 import { Screen } from '@/components/screen';
+import { TextField } from '@/components/text-field';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { formatJoinCode, struggleCaption } from '@/features/classrooms/heat';
 import { HeatmapGrid } from '@/features/classrooms/heatmap-grid';
 import { formatDecimal } from '@/features/progress/format';
+import { StatTile } from '@/features/progress/summary-parts';
 
 const PERIODS = [
   { days: 7, label: '7 gün' },
@@ -30,6 +25,7 @@ const PERIODS = [
 export default function ClassroomScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [days, setDays] = useState<number>(30);
+  const [studentFilter, setStudentFilter] = useState('');
   const heatmap = useQuery({
     queryKey: ['classrooms', id, 'heatmap', days],
     queryFn: () =>
@@ -52,6 +48,11 @@ export default function ClassroomScreen() {
     return (
       <Screen hasHeader>
         <ErrorMessage message={describeError(heatmap.error)} />
+        <Button
+          label="Tekrar dene"
+          color={Colors.teacher}
+          onPress={() => void heatmap.refetch()}
+        />
       </Screen>
     );
   }
@@ -60,6 +61,14 @@ export default function ClassroomScreen() {
   const code = data.classroom.join_code;
   const struggling = data.topics.filter((topic) => topic.struggling > 0);
   const shareText = `Hint.ai'de "${data.classroom.name}" sınıfına katılmak için davet kodu: ${code}. Ebeveyn panelinde çocuğunuzun profiline girip bu kodu yazın.`;
+  const totalProblems = data.students.reduce((sum, item) => sum + item.problems, 0);
+  const totalSolved = data.students.reduce((sum, item) => sum + item.solved, 0);
+  const normalizedQuery = studentFilter.trim().toLocaleLowerCase('tr-TR');
+  const filteredStudents = normalizedQuery
+    ? data.students.filter((student) =>
+        student.nickname.toLocaleLowerCase('tr-TR').includes(normalizedQuery),
+      )
+    : data.students;
 
   return (
     <Screen hasHeader>
@@ -81,14 +90,21 @@ export default function ClassroomScreen() {
             eklenir. Soru metinlerini ve güvenlik uyarılarını göremezsin; yalnızca konu bazında özet
             görürsün.
           </Text>
-          {Platform.OS !== 'web' ? (
-            <Button
-              label="Kodu paylaş"
-              variant="secondary"
+          <View style={styles.copyActions}>
+            <CopyButton
+              value={code}
+              label={Platform.OS === 'web' ? 'Kodu kopyala' : 'Kodu paylaş'}
+              shareMessage={shareText}
               color={Colors.teacher}
-              onPress={() => void Share.share({ message: shareText })}
             />
-          ) : null}
+            {Platform.OS === 'web' ? (
+              <CopyButton
+                value={shareText}
+                label="Veli mesajını kopyala"
+                color={Colors.teacher}
+              />
+            ) : null}
+          </View>
         </View>
       </View>
 
@@ -116,12 +132,33 @@ export default function ClassroomScreen() {
       </View>
 
       {data.cells.length === 0 ? (
-        <Text style={styles.empty}>
-          Bu dönemde sınıfta çalışılmış soru yok. Veliler davet kodunu girip öğrenciler soru
-          çözdükçe harita dolacak.
-        </Text>
+        <View style={styles.emptyCard}>
+          <Text style={styles.emptyTitle}>Bu dönemde sınıfta çalışılmış soru yok</Text>
+          <Text style={styles.empty}>
+            Veliler yukarıdaki davet kodunu çocuklarının profiline girip öğrenciler soru çözdükçe
+            konu × öğrenci ısı haritası otomatik dolacak.
+          </Text>
+        </View>
       ) : (
         <>
+          <View style={styles.tiles}>
+            <StatTile
+              label="Toplam soru"
+              value={String(totalProblems)}
+              caption={`Son ${days} günde sınıfta çalışılan`}
+            />
+            <StatTile
+              label="Çözülen soru"
+              value={String(totalSolved)}
+              caption="Cevap hiç verilmeden tamamlanan"
+            />
+            <StatTile
+              label="Zorlanılan konu"
+              value={String(struggling.length)}
+              caption={`${data.topics.length} çalışılan konu içinden`}
+            />
+          </View>
+
           <View style={styles.card}>
             <HeatmapGrid heatmap={data} />
           </View>
@@ -143,6 +180,14 @@ export default function ClassroomScreen() {
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Öğrenciler</Text>
+            {data.students.length > 4 ? (
+              <TextField
+                label="Öğrenci ara"
+                hint="Takma ada göre filtrele"
+                value={studentFilter}
+                onChangeText={setStudentFilter}
+              />
+            ) : null}
             <View style={[styles.tableRow, styles.tableHead]}>
               <Text style={[styles.colName, styles.th]}>Öğrenci</Text>
               <Text style={[styles.colNum, styles.th]}>Soru</Text>
@@ -150,7 +195,7 @@ export default function ClassroomScreen() {
               <Text style={[styles.colNum, styles.th]}>Ort. ipucu</Text>
               <Text style={[styles.colNum, styles.th]}>Cevap isteme</Text>
             </View>
-            {data.students.map((student) => (
+            {filteredStudents.map((student) => (
               <View
                 key={student.child_id}
                 accessible
@@ -205,6 +250,12 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   codeNote: { fontSize: 13, lineHeight: 18, color: Colors.text },
+  copyActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+    marginTop: Spacing.xs,
+  },
   headerRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -229,6 +280,16 @@ const styles = StyleSheet.create({
   periodSelected: { backgroundColor: Colors.teacher },
   periodText: { fontSize: 14, color: Colors.text },
   periodTextSelected: { color: Colors.onPrimary, fontWeight: '600' },
+  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  emptyCard: {
+    gap: Spacing.xs,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+  },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
   empty: { fontSize: 15, lineHeight: 21, color: Colors.textMuted },
   card: {
     gap: Spacing.md,

@@ -152,7 +152,8 @@ export interface paths {
         get: operations["get_child_v1_children__child_id__get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete Child Endpoint */
+        delete: operations["delete_child_endpoint_v1_children__child_id__delete"];
         options?: never;
         head?: never;
         /** Patch Child */
@@ -261,6 +262,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/hints/{hint_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Hint Feedback */
+        post: operations["submit_hint_feedback_v1_hints__hint_id__feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/children/{child_id}/summary": {
         parameters: {
             query?: never;
@@ -273,6 +291,26 @@ export interface paths {
          * @description Ebeveynin kendi çocuğu için dönem özeti (başka ebeveynin çocuğu 404).
          */
         get: operations["child_summary_v1_children__child_id__summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/children/{child_id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Child Data
+         * @description Ebeveynin kendi çocuğuna ait KVKK veri taşınabilirliği paketi.
+         */
+        get: operations["export_child_data_v1_children__child_id__export_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -459,6 +497,23 @@ export interface components {
             /** Purposes */
             purposes?: string[];
         };
+        /** ChildDataExport */
+        ChildDataExport: {
+            /**
+             * Exported At
+             * Format: date-time
+             */
+            exported_at: string;
+            profile: components["schemas"]["ChildProfileResponse"];
+            /** Shows Problem Text */
+            shows_problem_text: boolean;
+            /** Consents */
+            consents: components["schemas"]["ConsentExportItem"][];
+            /** Classrooms */
+            classrooms: components["schemas"]["ClassroomExportItem"][];
+            /** Problems */
+            problems: components["schemas"]["ProblemExportItem"][];
+        };
         /** ChildPairRequest */
         ChildPairRequest: {
             /**
@@ -555,6 +610,20 @@ export interface components {
             /** Grade */
             grade?: number | null;
         };
+        /** ClassroomExportItem */
+        ClassroomExportItem: {
+            /**
+             * Classroom Id
+             * Format: uuid
+             */
+            classroom_id: string;
+            /** Name */
+            name: string;
+            /** Grade */
+            grade: number | null;
+            /** Approved At */
+            approved_at: string | null;
+        };
         /** ClassroomOut */
         ClassroomOut: {
             /**
@@ -589,6 +658,22 @@ export interface components {
             teacher_name: string;
             /** Teacher Sees */
             teacher_sees: string;
+        };
+        /** ConsentExportItem */
+        ConsentExportItem: {
+            /** Purpose */
+            purpose: string;
+            /** Policy Version */
+            policy_version: string;
+            /** Granted */
+            granted: boolean;
+            /**
+             * Granted At
+             * Format: date-time
+             */
+            granted_at: string;
+            /** Revoked At */
+            revoked_at: string | null;
         };
         /** ConsentRequest */
         ConsentRequest: {
@@ -664,6 +749,21 @@ export interface components {
             students: number;
             /** Struggling */
             struggling: number;
+        };
+        /** HintFeedbackRequest */
+        HintFeedbackRequest: {
+            /** Helpful */
+            helpful: boolean;
+        };
+        /** HintFeedbackResponse */
+        HintFeedbackResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Helpful */
+            helpful: boolean;
         };
         /**
          * HintOut
@@ -762,6 +862,33 @@ export interface components {
             hints: components["schemas"]["HintOut"][];
             /** Attempts Count */
             attempts_count: number;
+        };
+        /** ProblemExportItem */
+        ProblemExportItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Topic */
+            topic: string;
+            /** Text */
+            text: string | null;
+            /** Status */
+            status: string;
+            /** State */
+            state: string;
+            /** Hints Used */
+            hints_used: number;
+            /** Attempts */
+            attempts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Solved At */
+            solved_at: string | null;
         };
         /**
          * ProblemResponse
@@ -1195,6 +1322,35 @@ export interface operations {
             };
         };
     };
+    delete_child_endpoint_v1_children__child_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                child_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     patch_child_v1_children__child_id__patch: {
         parameters: {
             query?: never;
@@ -1428,6 +1584,41 @@ export interface operations {
             };
         };
     };
+    submit_hint_feedback_v1_hints__hint_id__feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hint_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HintFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HintFeedbackResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     child_summary_v1_children__child_id__summary_get: {
         parameters: {
             query?: {
@@ -1448,6 +1639,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ChildSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_child_data_v1_children__child_id__export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                child_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChildDataExport"];
                 };
             };
             /** @description Validation Error */

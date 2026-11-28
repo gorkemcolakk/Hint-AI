@@ -55,6 +55,7 @@ def test_final_answer_leaks_are_caught(hint: str, level: int, answer: str, probl
         "Bu denklemde neyi bulmaya çalışıyoruz?",
         "x'i yalnız bırakmak için önce 5'ten kurtulalım.",
         "Eşitliğin iki tarafından aynı sayıyı çıkarabilirsin; 5'i hangi işlemle yok edersin?",
+        "Önce eşitliğin iki tarafından da 5 çıkarırsak sağ tarafta kaç kalır?",
     ],
 )
 def test_safe_hints_pass_even_when_answer_appears_in_problem(hint: str) -> None:

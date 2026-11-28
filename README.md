@@ -10,31 +10,27 @@ Hint.ai, öğrencinin takıldığı yeri tespit edip **cevabı söylemeden**, ad
 
 ## Durum
 
-| Milestone | Tanım | Durum |
+| Aşama / Milestone | Tanım | Durum |
 |---|---|---|
-| **M0** | Altyapı iskeleti (FastAPI, Docker Compose, CI, lint, `healthz`) | ✅ tamam |
-| **M1** | Kimlik, rıza ve çocuk profili (Auth, ebeveyn kaydı, eşleştirme) | ✅ tamam |
-| **M1.5** | Expo istemci iskeleti (React Native + Web, TypeScript, tek kod tabanı) | ✅ tamam |
-| **M2** | LLM Gateway + PII maskeleme (Gemini/OpenAI uyumlu, rıza/kota, eval) | ✅ tamam |
-| **M2.1** | Gateway sertleştirme (maskeleme yanlış pozitifleri, fail-closed rıza, ayrı test DB) | ✅ tamam |
-| **M3** | Gizli çözüm + SymPy doğrulama | ✅ tamam (gerçek model: 22/22 doğru, kısmi ölçüm) |
-| **M4** | İpucu merdiveni (L0–L4) + sızıntı kontrolü | 🟡 prototip: kural + LLM yargıç çalışıyor; gerçek modelle yalnızca 1 soru ölçüldü (v2 prompt ölçümü bekliyor) |
-| **M5** | Güvenlik katmanı ve moderasyon (kriz yönlendirmesi, injection) | 🟡 prototip: kural tabanlı sınıflandırıcı; kriz metinleri uzman onayı bekliyor |
-| **M6** | Expo çocuk modu (öğrenme akışı, yaş temaları) | 🟡 prototip: web'de çalışıyor; mobil ve e2e test yok |
-| **M7** | Expo ebeveyn modu (raporlar, kota, faturalama) | 🟡 prototip: uygulama içi özet; e-posta raporu ve faturalama yok |
-| **M8** | Expo öğretmen modu (sınıf paneli, ısı haritası) | 🟡 prototip: sınıf, davet kodu, veli onayı, ısı haritası; MEB kazanım eşlemesi yok |
-| **M9** | Eval otomasyonu, gözlemlenebilirlik ve yayın hazırlığı | ⏳ bekliyor |
+| **M0–M3** | Altyapı, kimlik/rıza, Expo iskeleti, LLM Gateway + PII maskeleme, gizli çözüm + SymPy | ✅ tamam |
+| **A0** | Docker'sız yerel ortam (`scripts/localdb.py`, `scripts/dev.ps1`, demo seed) | ✅ tamam |
+| **A1** | İpucu çekirdeği (`L0–L4`, SymPy deneme kontrolü, kural tabanlı sızıntı + yedek ipucu) | ✅ tamam |
+| **A2** | Expo çocuk modu (`Keşif` / `Odak` temaları, rahat okuma, matematik biçimlendirme, 429 kontrol listesi) | ✅ tamam |
+| **A3** | Güvenlik katmanı (`hint_v3` + `judge_v3`, girdi/çıktı moderasyonu, kriz kartı, adversarial eval) | ✅ tamam *(kriz metinleri uzman/hukuk onayı bekliyor)* |
+| **A4** | Ebeveyn paneli (ilerleme özeti, günlük sınır/gizlilik/politika ayarı, rıza yönetimi, KVKK veri indirme/silme) | ✅ tamam *(e-posta raporu ve ödeme Faz 2 sonrası)* |
+| **Öğretmen (M8)** | Sınıf, davet kodu, veli onay önizlemesi, konu × öğrenci ısı haritası | ✅ tamam *(MEB kazanım kodu eşlemesi sonra)* |
+| **A5** | Pilot ve yayın hazırlığı (SSE ipucu akışı, auth rate-limit, yapılandırılmış log, CI eval smoke, runbook'lar) | ✅ teknik altyapı tamam *(gerçek çocuk pilotu öncesi ücretli LLM katmanı ve uzman onayları gerekir)* |
 
-M4–M8 prototipi tek bir dikey dilim olarak yapıldı (sıra ve gerekçe: [docs/mvp-plan.md](docs/mvp-plan.md)). Gerçek çocuklarla kullanım için ücretli LLM katmanı, uzman/hukuk onayları ve gerçek model ölçümü gerekir.
+A0–A5 dikey dilim planının ayrıntıları: [docs/mvp-plan.md](docs/mvp-plan.md) · Operasyon rehberleri: [docs/runbooks.md](docs/runbooks.md).
 
-## Prototipte eklenenler (M4–M8)
+## Öne Çıkan Özellikler (A0–A5)
 
-- **İpucu merdiveni** — `POST /v1/problems/{id}/hints`, `POST /v1/problems/{id}/attempts`, `GET /v1/problems/{id}`. L0–L4 (L5 kapalı); "takıldım", 2 yanlış deneme ve zorlanma ifadesiyle yükselme; doğrulanamayan soruda temkinli üst sınır. Cevap SymPy ile kontrol edilir, doğru cevap hiçbir yanıtta dönmez.
-- **Sızıntı kontrolü** — kural katmanı (rakam, kesir, ondalık, yazıyla sayı, kök, "x = …" kalıpları; L0–L2'de ara sonuçlar) + LLM yargıç (`judge_v2`). Yargıç hatası/belirsizliği sızıntı sayılır; sızıntıda en fazla 3 üretim, yargıç 2 kez reddederse soru türüne uygun hazır ipucu.
-- **Girdi/çıktı güvenliği** — kriz (kendine zarar, istismar) metni LLM'e gitmez ve saklanmaz; sabit destek mesajı + 112 / ALO 183. "Cevabı söyle" girişimleri not ile işlenir. Model çıktısında kişisel veri, bağlantı, uygunsuz içerik varsa yeniden üretilir. Olaylar `moderation_events`'te (metin yok).
-- **Ebeveyn özeti** — `GET /v1/children/{id}/summary`: çözülen, ipucusuz çözülen, ortalama ipucu, konular, son sorular, güvenlik uyarıları. Varsayılan gizlilikte soru metni yok; istismar bildirimleri ebeveyne gösterilmez.
-- **Öğretmen paneli** — sınıf + davet kodu; veli kodu önizleyip onaylayarak çocuğu kaydeder ya da çıkarır. Konu × öğrenci ısı haritası; öğretmen soru/ipucu metnini ve güvenlik uyarılarını görmez.
-- **Eval** — `python -m evals.run_safety_eval` (adversarial set), `python -m evals.run_hint_eval [--real --ids 1,2]` (ipucu sızıntısı).
+- **İpucu merdiveni ve SSE akışı** — `POST /v1/problems/{id}/hints` (JSON + `text/event-stream` SSE), `POST /v1/problems/{id}/attempts`, `POST /v1/hints/{id}/feedback`, `GET /v1/problems/{id}`. `hint_v3` ile L0–L2 sorunun sayılarıyla yönlendirir, L3 ilk adımı tamamlayıp tek son işlemi öğrenciye bırakır, L4 farklı sayılarla ikiz örnek çözer; L5 kapalıdır.
+- **Sızıntı kontrolü** — kural katmanı (rakam, kesir, ondalık, yazıyla sayı, kök, `x = …` kalıpları; L0–L2'de ara sonuçlar) + LLM yargıç (`judge_v3`, ayrı hızlı yargıç modeli `LLM_JUDGE_MODEL` destekli). SSE akışında dahi yalnızca tüm kontrolleri geçmiş ipucu akıtılır.
+- **Girdi/çıktı güvenliği ve hız sınırı** — kriz ifadeleri LLM'e gitmez ve saklanmaz; sabit destek kartı (`112` / `ALO 183`) döner. Giriş, kayıt ve eşleştirme uçlarında kayan pencereli brute-force rate limit (`429`) çalışır.
+- **Ebeveyn kontrolleri ve KVKK hakları** — `GET /v1/children/{id}/summary`, `PATCH /v1/children/{id}` (günlük yeni soru sınırı `POST /v1/problems` üzerinde uygulanır), `POST /v1/children/{id}/consents`, `GET /v1/children/{id}/export` (JSON dışa aktarma) ve `DELETE /v1/children/{id}` (kademeli kalıcı silme). İstismar bildirimleri ebeveyn özetinde ve dışa aktarımda gizlenir.
+- **Öğretmen paneli** — sınıf + davet kodu kopyalama/paylaşma; veli kodu önizleyip onaylayarak çocuğu kaydeder ya da çıkarır. Konu × öğrenci ısı haritası; öğretmen soru/ipucu metnini ve güvenlik uyarılarını görmez.
+- **Gözlemlenebilirlik ve Eval otomasyonu** — gövde/sorgu loglamayan JSON `StructuredLoggingMiddleware` (`X-Request-ID`), `docs/runbooks.md`, CI üzerinde otomatik `run_pii_eval`, `run_safety_eval`, `run_solution_eval` ve `run_hint_eval` smoke kontrolleri.
 
 ## Mevcut özellikler (M1 + M1.5 + M2 + M3)
 

@@ -30,7 +30,8 @@ _ASSIGNMENT_BEFORE = re.compile(
     rf"(?:(?<![{_LETTERS}])[a-z]\s*=\s*|(?:cevap|sonuç|yanıt)[{_LETTERS}]*\s*[:=]?\s*)-?$"
 )
 _ASSIGNMENT_AFTER = re.compile(
-    r"^\s*(?:'?\s*(?:dir|dır|dur|dür|tir|tır|tur|tür)\b|olur|bulunur|çıkar|eder|'?y?[ea] eşit)"
+    rf"^\s*(?:'?\s*(?:dir|dır|dur|dür|tir|tır|tur|tür)(?![{_LETTERS}])|"
+    rf"(?:olur|bulunur|çıkar|çıkıyor|eder)(?![{_LETTERS}])|'?y?[ea] eşit)"
 )
 
 _ONES = ["", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz"]

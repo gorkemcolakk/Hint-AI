@@ -17,24 +17,46 @@ export default function WelcomeScreen() {
           Hint.ai
         </Text>
         <Text style={styles.tagline}>Cevabı değil, ipucunu veren öğrenme arkadaşı.</Text>
+        <Text style={styles.trustBadges}>
+          7–17 yaş · Sokratik ipucu merdiveni · Reklamsız ve KVKK uyumlu
+        </Text>
       </View>
+
       {__DEV__ ? <DevShortcuts /> : null}
-      <Button label="Giriş yap" onPress={() => router.push('/login')} />
-      <Button
-        label="Ebeveyn hesabı oluştur"
-        variant="secondary"
-        onPress={() => router.push('/register')}
-      />
-      <Button
-        label="Öğretmen hesabı oluştur"
-        variant="secondary"
-        color={Colors.teacher}
-        onPress={() => router.push({ pathname: '/register', params: { role: 'teacher' } })}
-      />
-      <Text style={styles.note}>
-        Çocuğunun cihazını mı bağlıyorsun? Ebeveyn panelinde oluşturduğun eşleştirme bağlantısını bu
-        cihazda aç.
-      </Text>
+
+      <View style={styles.roleCard}>
+        <Text accessibilityRole="header" style={styles.roleTitle}>
+          Ebeveyn ve Öğretmen Girişi
+        </Text>
+        <Button label="Giriş yap" onPress={() => router.push('/login')} />
+        <Button
+          label="Ebeveyn hesabı oluştur"
+          variant="secondary"
+          onPress={() => router.push('/register')}
+        />
+        <Button
+          label="Öğretmen hesabı oluştur"
+          variant="secondary"
+          color={Colors.teacher}
+          onPress={() => router.push({ pathname: '/register', params: { role: 'teacher' } })}
+        />
+      </View>
+
+      <View style={styles.childBox}>
+        <Text accessibilityRole="header" style={styles.childTitle}>
+          Çocuk Cihazı Bağlantısı
+        </Text>
+        <Text style={styles.childBody}>
+          Çocuğun e-posta ya da şifre kullanmaz. Ebeveyn panelinden oluşturduğun tek kullanımlık
+          bağlantıyı açabilir ya da aşağıdan yapıştırabilirsin.
+        </Text>
+        <Button
+          label="Eşleştirme bağlantısıyla katıl"
+          variant="secondary"
+          color={Colors.child}
+          onPress={() => router.push('/pair')}
+        />
+      </View>
     </Screen>
   );
 }
@@ -83,8 +105,8 @@ function DevShortcuts() {
 const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.xl,
+    gap: Spacing.xs,
+    paddingVertical: Spacing.lg,
   },
   brand: {
     fontSize: 40,
@@ -94,11 +116,48 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: 17,
     textAlign: 'center',
+    color: Colors.text,
+    fontWeight: '600',
+  },
+  trustBadges: {
+    fontSize: 13,
+    textAlign: 'center',
     color: Colors.textMuted,
   },
-  note: {
+  roleCard: {
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+  },
+  roleTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  childBox: {
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.child,
+    backgroundColor: '#E6F4F1',
+  },
+  childTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.child,
+  },
+  childBody: {
     fontSize: 14,
     lineHeight: 20,
+    color: Colors.text,
+  },
+  note: {
+    fontSize: 13,
+    lineHeight: 19,
     textAlign: 'center',
     color: Colors.textMuted,
   },

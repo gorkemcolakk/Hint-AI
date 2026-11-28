@@ -25,7 +25,7 @@ migrate:
 	cd apps/api && alembic upgrade head
 
 eval:
-	cd apps/api && python -m evals.run_pii_eval && python -m evals.run_solution_eval
+	cd apps/api && python -m evals.run_pii_eval && python -m evals.run_safety_eval && python -m evals.run_solution_eval && python -m evals.run_hint_eval --limit 10
 
 client-gen:
 	cd apps/api && python -m scripts.export_openapi ../client/openapi.json

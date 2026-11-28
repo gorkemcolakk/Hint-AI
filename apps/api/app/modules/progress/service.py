@@ -13,7 +13,9 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.auth_consent.models import ChildProfile
+from app.modules.auth_consent.models import ChildProfile, Consent
+from app.modules.auth_consent.schemas import ChildProfileResponse
+from app.modules.classrooms.models import Classroom, Enrollment
 from app.modules.problems.models import HiddenSolution, Problem
 from app.modules.safety.models import GUARDIAN_HIDDEN_CATEGORIES, ModerationEvent
 from app.modules.tutoring.models import Attempt, Hint
@@ -174,4 +176,139 @@ async def build_summary(db: AsyncSession, child: ChildProfile, days: int) -> Chi
         alerts=alerts,
         flags=dict(flags),
         answer_requests=sum(1 for e in events if e.category == "prompt_injection"),
+    )
+
+
+class ConsentExportItem(BaseModel):
+    purpose: str
+    policy_version: str
+    granted: bool
+    granted_at: datetime
+    revoked_at: datetime | None
+
+
+class ClassroomExportItem(BaseModel):
+    classroom_id: uuid.UUID
+    name: str
+    grade: int | None
+    approved_at: datetime | None
+
+
+class ProblemExportItem(BaseModel):
+    id: uuid.UUID
+    topic: str
+    text: str | None
+    status: str
+    state: str
+    hints_used: int
+    attempts: int
+    created_at: datetime
+    solved_at: datetime | None
+
+
+class ChildDataExport(BaseModel):
+    exported_at: datetime
+    profile: ChildProfileResponse
+    shows_problem_text: bool
+    consents: list[ConsentExportItem]
+    classrooms: list[ClassroomExportItem]
+    problems: list[ProblemExportItem]
+
+
+async def build_child_export(db: AsyncSession, child: ChildProfile) -> ChildDataExport:
+    """KVKK veri taşınabilirliği dışa aktarımı (Bölüm 10.4).
+
+    Gizli çözüm (`final_answer`, `steps`) ve ebeveynden gizlenen güvenlik kategorileri
+    (`abuse_disclosure`) bu pakete ASLA dahil edilmez; `summary_only` ayarında soru metni boş kalır.
+    """
+    consents = (
+        await db.scalars(
+            select(Consent).where(Consent.child_id == child.id).order_by(Consent.granted_at)
+        )
+    ).all()
+    classroom_rows = (
+        await db.execute(
+            select(Classroom, Enrollment.approved_at)
+            .join(Enrollment, Enrollment.classroom_id == Classroom.id)
+            .where(Enrollment.child_id == child.id, Enrollment.guardian_approved.is_(True))
+            .order_by(Classroom.name)
+        )
+    ).all()
+    problem_rows = (
+        await db.execute(
+            select(Problem, HiddenSolution.topic)
+            .outerjoin(HiddenSolution, HiddenSolution.id == Problem.solution_id)
+            .where(Problem.child_id == child.id)
+            .order_by(Problem.created_at.desc())
+        )
+    ).all()
+
+    problem_ids = [problem.id for problem, _ in problem_rows]
+    hint_counts: dict[uuid.UUID, int] = {}
+    attempt_counts: dict[uuid.UUID, int] = {}
+    if problem_ids:
+        hint_counts = {
+            pid: int(n)
+            for pid, n in await db.execute(
+                select(Hint.problem_id, func.count(Hint.id))
+                .where(Hint.problem_id.in_(problem_ids))
+                .group_by(Hint.problem_id)
+            )
+        }
+        attempt_counts = {
+            pid: int(n)
+            for pid, n in await db.execute(
+                select(Attempt.problem_id, func.count(Attempt.id))
+                .where(Attempt.problem_id.in_(problem_ids))
+                .group_by(Attempt.problem_id)
+            )
+        }
+
+    shows_text = child.privacy_level == "full_transcript"
+    return ChildDataExport(
+        exported_at=datetime.now(UTC),
+        profile=ChildProfileResponse(
+            id=child.id,
+            nickname=child.nickname,
+            birth_year=child.birth_year,
+            grade=child.grade,
+            age_band=child.age_band,
+            daily_new_problem_limit=child.daily_new_problem_limit,
+            solution_policy=child.solution_policy,
+            privacy_level=child.privacy_level,
+        ),
+        shows_problem_text=shows_text,
+        consents=[
+            ConsentExportItem(
+                purpose=c.purpose,
+                policy_version=c.policy_version,
+                granted=c.granted,
+                granted_at=c.granted_at,
+                revoked_at=c.revoked_at,
+            )
+            for c in consents
+        ],
+        classrooms=[
+            ClassroomExportItem(
+                classroom_id=cls.id,
+                name=cls.name,
+                grade=cls.grade,
+                approved_at=approved_at,
+            )
+            for cls, approved_at in classroom_rows
+        ],
+        problems=[
+            ProblemExportItem(
+                id=problem.id,
+                topic=topic or UNKNOWN_TOPIC,
+                text=problem.masked_text if shows_text else None,
+                status=problem.status,
+                state=problem.state,
+                hints_used=hint_counts.get(problem.id, 0),
+                attempts=attempt_counts.get(problem.id, 0),
+                created_at=problem.created_at,
+                solved_at=problem.solved_at,
+            )
+            for problem, topic in problem_rows
+        ],
     )

@@ -9,10 +9,11 @@ import hashlib
 import json
 import uuid
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any, cast
 
 from pydantic import BaseModel, Field, ValidationError
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.llm_gateway.mask import mask_pii
@@ -23,6 +24,10 @@ from app.prompts import load_prompt
 
 SOLVE_PROMPT = "solve_v1"
 MAX_SOLVE_ATTEMPTS = 2
+
+
+class DailyProblemLimitExceededError(Exception):
+    """Ebeveynin belirlediği günlük yeni soru sınırı aşıldığında fırlatılır (Bölüm 5.5)."""
 
 
 class SolutionPayload(BaseModel):
@@ -82,7 +87,7 @@ async def generate_solution(
             child_id=child_id,
             db=db,
             temperature=0.2,
-            max_tokens=1200,
+            max_tokens=2500,
         )
         payload = parse_solution(result.content)
         if payload is None:
@@ -106,20 +111,41 @@ def status_for(outcome: SolutionOutcome | None) -> str:
 
 
 async def create_problem(
-    db: AsyncSession, child_id: uuid.UUID, text: str, gateway: LLMGatewayService
+    db: AsyncSession,
+    child_id: uuid.UUID,
+    text: str,
+    gateway: LLMGatewayService,
+    *,
+    daily_limit: int | None = None,
 ) -> tuple[Problem, HiddenSolution | None]:
     """Öğrencinin sorusunu kaydeder ve gizli çözümünü hazırlar."""
+    if daily_limit is not None:
+        today_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+        today_count = int(
+            await db.scalar(
+                select(func.count(Problem.id)).where(
+                    Problem.child_id == child_id,
+                    Problem.created_at >= today_start,
+                )
+            )
+            or 0
+        )
+        if today_count >= daily_limit:
+            raise DailyProblemLimitExceededError()
+
     masked = str(mask_pii(text).masked_text)
     digest = problem_hash(masked)
 
+    from app.core.config import settings
+
+    cache_query = select(HiddenSolution).where(
+        HiddenSolution.problem_hash == digest, HiddenSolution.verified.is_(True)
+    )
+    if settings.llm_provider not in ("mock", "demo"):
+        cache_query = cache_query.where(HiddenSolution.model.notin_(("mock", "demo")))
     solution = cast(
         HiddenSolution | None,
-        await db.scalar(
-            select(HiddenSolution)
-            .where(HiddenSolution.problem_hash == digest, HiddenSolution.verified.is_(True))
-            .order_by(HiddenSolution.created_at.desc())
-            .limit(1)
-        ),
+        await db.scalar(cache_query.order_by(HiddenSolution.created_at.desc()).limit(1)),
     )
     status = "verified"
     if solution is None:

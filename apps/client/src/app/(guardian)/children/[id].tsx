@@ -2,15 +2,17 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Platform, Share, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { api } from '@/api/client';
 import { describeError, unwrap } from '@/api/errors';
 import { pairDevice } from '@/auth/auth';
 import { Button } from '@/components/button';
+import { CopyButton } from '@/components/copy-button';
 import { ErrorMessage } from '@/components/error-message';
 import { Screen } from '@/components/screen';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { ChildSettings } from '@/features/children/child-settings';
 import { ChildClassrooms } from '@/features/classrooms/child-classrooms';
 import { ChildSummary } from '@/features/progress/child-summary';
 
@@ -62,6 +64,7 @@ export default function ChildDetailScreen() {
       ) : null}
 
       {id ? <ChildSummary childId={id} /> : null}
+      {profile.data ? <ChildSettings profile={profile.data} /> : null}
       {id ? <ChildClassrooms childId={id} /> : null}
 
       <Text accessibilityRole="header" style={styles.section}>
@@ -81,13 +84,11 @@ export default function ChildDetailScreen() {
           <Text style={styles.meta}>
             Kod: {pairingCode} · Son geçerlilik: {formatTime(pairing.data.expires_at)}
           </Text>
-          {Platform.OS !== 'web' ? (
-            <Button
-              label="Bağlantıyı paylaş"
-              variant="secondary"
-              onPress={() => void Share.share({ message: pairingLink })}
-            />
-          ) : null}
+          <CopyButton
+            value={pairingLink}
+            label={Platform.OS === 'web' ? 'Eşleştirme bağlantısını kopyala' : 'Bağlantıyı paylaş'}
+            color={Colors.guardian}
+          />
           {confirmSwitch ? (
             <>
               <Text style={styles.warning}>

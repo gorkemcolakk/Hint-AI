@@ -11,12 +11,16 @@ from dataclasses import dataclass
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.modules.llm_gateway.providers import ConsentRequiredError, LLMError
 from app.modules.llm_gateway.service import LLMGatewayService
 from app.modules.tutoring.ladder import LEVEL_NAMES
 from app.prompts import load_prompt
 
-JUDGE_PROMPT = "judge_v2"
+JUDGE_PROMPT = "judge_v3"
+# Gemini 2.5 / 3.x düşünme token'ları da max_tokens bütçesinden düşer; 768 sınırında JSON
+# kesildiği için yeterli marj bırakılır.
+JUDGE_MAX_TOKENS = 2048
 
 
 @dataclass(frozen=True)
@@ -74,20 +78,30 @@ async def judge_hint(
     request = build_judge_request(
         problem_text=problem_text, final_answer=final_answer, steps=steps, level=level, hint=hint
     )
-    try:
-        result = await gateway.complete(
-            prompt=request,
-            purpose="leak_judge",
-            system_prompt=load_prompt(JUDGE_PROMPT),
-            prompt_version=JUDGE_PROMPT,
-            child_id=child_id,
-            db=db,
-            temperature=0.0,
-            # Düşünme token'ları da bu sınırdan düşer; kesik JSON fail-closed olur.
-            max_tokens=768,
+    judge_model = settings.llm_judge_model.strip() or None
+    for attempt in range(2):
+        prompt_text = (
+            request
+            if attempt == 0
+            else f"{request}\nHATIRLATMA: Yalnızca geçerli tek satır JSON döndür."
         )
-    except ConsentRequiredError:
-        raise
-    except LLMError as exc:
-        return JudgeVerdict(True, f"judge_error:{type(exc).__name__}", 3, error=True)
-    return parse_verdict(result.content)
+        try:
+            result = await gateway.complete(
+                prompt=prompt_text,
+                purpose="leak_judge",
+                system_prompt=load_prompt(JUDGE_PROMPT),
+                prompt_version=JUDGE_PROMPT,
+                child_id=child_id,
+                db=db,
+                model_override=judge_model,
+                temperature=0.0,
+                max_tokens=JUDGE_MAX_TOKENS,
+            )
+        except ConsentRequiredError:
+            raise
+        except LLMError as exc:
+            return JudgeVerdict(True, f"judge_error:{type(exc).__name__}", 3, error=True)
+        verdict = parse_verdict(result.content)
+        if not verdict.error:
+            return verdict
+    return verdict
